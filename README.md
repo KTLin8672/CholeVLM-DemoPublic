@@ -1,6 +1,6 @@
 # CholeVLM-DemoPublic
 
-- **What it does:** serves a web page, a 3D operating room that plays a surgical video on one monitor and shows the model's output at each time step on the others, read from the API of the [evaluation and serving repository](https://github.com/KTLin8672/CholeVLM-EvalTool).
+- **What it does:** serves a web page, a 3D operating room that plays a surgical video on one monitor and shows the model's output at each time step on the others, read from the model's stored outputs in `replay/` (see Replay), or live from the API of the [evaluation and serving repository](https://github.com/KTLin8672/CholeVLM-EvalTool) where that runs.
 - **What it never does:** it binds nothing but 127.0.0.1, and it serves nothing about the machine or the people who run it.
 - **Related repositories:** [CholeVLM-DataTool](https://github.com/KTLin8672/CholeVLM-DataTool), the data repository, builds the training data; [CholeVLM-TrainingTool](https://github.com/KTLin8672/CholeVLM-TrainingTool), the training repository, trains the model; [CholeVLM-EvalTool](https://github.com/KTLin8672/CholeVLM-EvalTool), the evaluation and serving repository, serves the model, and its API is this repository's only input; [CholeVLM-ControlTower](https://github.com/KTLin8672/CholeVLM-ControlTower), the planning repository, holds the plan and the decision log.
 
@@ -54,7 +54,7 @@ PLAYWRIGHT_BROWSERS_PATH=$VIRTUAL_ENV/ms-playwright python -m playwright install
 
 ```bash
 (cd web && npm run build)      # success: ends with "built in" and a time
-python -m chole_demo serve     # success: "Uvicorn running on http://127.0.0.1:8781"; the first answer takes about 15 s
+python -m chole_demo serve     # success: "Uvicorn running on http://127.0.0.1:8781"; the first answer can take up to half a minute
 ```
 
 - **In a second terminal:** success is `up`; then open `http://127.0.0.1:8781` in a browser and the operating room plays a test pattern under the banner "MOCK FEED, made-up decisions"
@@ -108,6 +108,14 @@ systemctl --user restart chole-demo-screen     # after a change under src/; a ch
 
 ```bash
 systemd-run --user --unit chole-eval-api-nomodel --same-dir -E ARTIFACT_ROOT -E DATA_ROOT "$(command -v python)" -m chole_eval.serve api --no-model
+```
+
+- **Meanwhile, the replay** (see Replay) serves the two validation videos from their stored outputs; the screen service holds port 8781, so stop it first, and go back with `systemctl --user start chole-demo-screen chole-demo-share` once the API runs:
+
+```bash
+systemctl --user stop chole-demo-screen        # the share stops with it
+python -m chole_demo serve --source replay     # the page on the stored outputs
+python -m chole_demo share                     # in a second terminal, to make it public again
 ```
 
 - **Ship a change to the page:** build into a trial folder, test it, and swap it in only if the tests pass; the last line says which happened
