@@ -273,6 +273,28 @@ def test_rate_limited(tmp_path):
     assert c.delete("/api/owner", headers=other).status_code == 200
 
 
+def test_a_made_up_forwarded_for_is_still_one_visitor(tmp_path):
+    """ngrok puts the address it saw after any X-Forwarded-For the visitor sent (a header
+    line of its own, or the list's end), so the limits key on the last value: a new made-up
+    first value on every request is still one visitor (found 2026-11-24 through the share)."""
+    app = create_app(
+        FakeMock(tmp_path),
+        web_dist=tmp_path / "nodist",
+        access_log=tmp_path / "a.log",
+        pinned="1.0",
+        owner=_owner(tmp_path),
+        limits={"media": 2, "api": 3, "ask": 1, "signin": 2},
+    )
+    c = TestClient(app)
+    seen = "198.51.100.4"  # what ngrok saw
+    lines = [[("x-forwarded-for", f"203.0.113.{i}"), ("x-forwarded-for", seen)] for i in range(4)]
+    assert [c.get("/api/videos", headers=h).status_code for h in lines] == [200, 200, 200, 429]
+    joined = {"x-forwarded-for": f"203.0.113.77, {seen}"}
+    assert c.get("/api/videos", headers=joined).status_code == 429
+    log = [json.loads(x) for x in (tmp_path / "a.log").read_text().splitlines()]
+    assert log[0]["visitor"] == seen and log[0]["forwarded_for"] == f"203.0.113.0, {seen}"
+
+
 def test_ask(client):
     _sign_in(client)
     body = {"run": OFFLINE, "video_id": mock.VIDEO_ID, "t": 125, "question": "describe the scene"}
@@ -313,12 +335,27 @@ def test_access_logged(client, tmp_path):
     lines = [json.loads(x) for x in (tmp_path / "access.log").read_text().splitlines()]
     assert lines[-1]["path"] == "/api/videos"
     assert lines[-1]["user"] == "someone@example.com"
+    assert (tmp_path / "access.log").stat().st_mode & 0o777 == 0o600  # it holds addresses
+
+
+def test_an_older_access_log_is_made_private(tmp_path):
+    log = tmp_path / "old.log"
+    log.write_text("")
+    log.chmod(0o664)
+    app = create_app(
+        FakeMock(tmp_path), web_dist=tmp_path / "nodist", access_log=log, pinned="1.0",
+        owner=_owner(tmp_path),
+    )  # fmt: skip
+    TestClient(app).get("/api/videos")  # the middleware is built at the first request
+    assert log.stat().st_mode & 0o777 == 0o600
 
 
 def test_says_nothing_about_its_host(client):
     res = client.get(f"/api/rollout/{OFFLINE}/mock%3A01")
     assert res.headers["x-robots-tag"] == "noindex, nofollow"
     assert res.headers["referrer-policy"] == "no-referrer"
+    assert res.headers["x-frame-options"] == "DENY"  # no other site frames the Owner tab
+    assert res.headers["content-security-policy"] == "frame-ancestors 'none'"
     body = res.text
     assert "header" not in res.json() and "/home/" not in body and "note" not in body
     missing = client.get("/api/frames/mock%3A01/9999.jpg").json()

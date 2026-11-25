@@ -83,3 +83,4 @@ What changed in the demo, by date, oldest first.
 - The phone's dashboard reads as the reading monitor does: now, safety, the model's words, then what is ahead.
 - The animation guide matches the page's anchors and a decision's fields.
 - The first public version.
+- A security audit: a visitor's address is the one ngrok saw, so a made-up `X-Forwarded-For` no longer slips the per-visitor limits; no other site may show the page in a frame; the built page carries no HTML comment; the access log is readable by its own account alone.

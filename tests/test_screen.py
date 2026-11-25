@@ -155,6 +155,12 @@ def _open(browser, url, w, h, view):
     return page, errors
 
 
+def test_the_built_page_carries_no_html_comment():
+    """index.html's comments are notes for whoever edits it; a visitor's view-source shows
+    none of them (2026-11-24: they named a decision and the owner's sign-in)."""
+    assert "<!--" not in (DIST / "index.html").read_text()
+
+
 @pytest.mark.parametrize("view", ["presenter", "engineer"])
 @pytest.mark.parametrize(("w", "h"), [(1280, 720), (1600, 900)])
 def test_the_alert_is_on_screen_and_the_pages_fit(browser, url, w, h, view):

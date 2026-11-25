@@ -15,6 +15,7 @@ import contextlib
 import hmac
 import ipaddress
 import json
+import os
 import time
 from pathlib import Path
 from urllib.parse import quote
@@ -68,9 +69,30 @@ SIGNIN_FAILURES = 30
 FOLLOW_LIMITS = {"visitor": 4, "total": 64}
 
 
+def _address(headers, client) -> str:
+    """Who is asking, as ngrok saw them: the last X-Forwarded-For value. ngrok puts the
+    address it saw after any the visitor sent (on a header line of its own, or at the end of
+    the list), so a first value is the visitor's to choose: keyed on it, a made-up value on
+    every request would slip every per-visitor limit (found 2026-11-24)."""
+    values = [v.strip() for line in headers.getlist("x-forwarded-for") for v in line.split(",")]
+    values = [v for v in values if v]
+    return values[-1] if values else (client.host if client else "?")
+
+
 def _visitor(request: Request) -> str:
-    fwd = request.headers.get("x-forwarded-for")
-    return fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "?")
+    return _address(request.headers, request.client)
+
+
+def _forwarded(headers) -> str | None:
+    """Every X-Forwarded-For value, in order, for the log: what was claimed and what ngrok saw."""
+    return ", ".join(headers.getlist("x-forwarded-for")) or None
+
+
+def _append(path: Path, entry: dict) -> None:
+    """One line of the access log, which only this account may read (it holds addresses)."""
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    with os.fdopen(fd, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 
 class RateLimit(BaseHTTPMiddleware):
@@ -125,6 +147,8 @@ class AccessLog(BaseHTTPMiddleware):
         super().__init__(app)
         self.path = path
         path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists():
+            path.chmod(0o600)  # a log written before 2026-11-24 was readable by every account
 
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
@@ -132,6 +156,9 @@ class AccessLog(BaseHTTPMiddleware):
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        # no other site may show the page in a frame: its Owner tab takes the password
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Content-Security-Policy"] = "frame-ancestors 'none'"
         # the page itself is checked again on every load (its ETag answers 304 while it is
         # unchanged), so a deploy shows at the next load, not after the browser's own guess
         # at freshness (the owner saw the old columns after 2026-11-23's); its scripts and
@@ -142,14 +169,14 @@ class AccessLog(BaseHTTPMiddleware):
         entry = {
             "time": round(time.time(), 3),
             "client": request.client.host if request.client else None,
-            "forwarded_for": request.headers.get("x-forwarded-for"),
+            "forwarded_for": _forwarded(request.headers),
+            "visitor": _visitor(request),
             "user": request.headers.get("tailscale-user-login"),
             "method": request.method,
             "path": request.url.path,
             "status": response.status_code,
         }
-        with self.path.open("a") as f:
-            f.write(json.dumps(entry) + "\n")
+        _append(self.path, entry)
         return response
 
 
@@ -482,8 +509,7 @@ def create_app(
 
     async def follow(ws: WebSocket):
         run, video = ws.path_params["run"], ws.path_params["video"]
-        fwd = ws.headers.get("x-forwarded-for")
-        who = fwd.split(",")[0].strip() if fwd else (ws.client.host if ws.client else "?")
+        who = _address(ws.headers, ws.client)
         known = await listed()
         if hubs is not None and (run, video) not in known["writing"]:
             known = await listed(fresh=True)
@@ -508,9 +534,9 @@ def create_app(
         except ValueError:
             after = 0
         following[who] += 1
-        with access_log.open("a") as f:
-            f.write(json.dumps({"time": round(time.time(), 3), "client": ws.client.host if ws.client else None,
-                                "forwarded_for": fwd, "method": "WS", "path": ws.url.path, "status": 101}) + "\n")  # fmt: skip
+        _append(access_log, {"time": round(time.time(), 3), "client": ws.client.host if ws.client else None,
+                             "forwarded_for": _forwarded(ws.headers), "visitor": who,
+                             "method": "WS", "path": ws.url.path, "status": 101})  # fmt: skip
         try:
             async for msg in hubs.get(run, video).watch(after):
                 await ws.send_json(msg)
