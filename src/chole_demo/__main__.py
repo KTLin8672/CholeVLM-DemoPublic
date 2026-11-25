@@ -24,7 +24,7 @@ def main(argv: list[str] | None = None) -> None:
     s = sub.add_parser("serve", help="serve the screen on loopback")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=DEFAULT_PORT)
-    s.add_argument("--source", default="mock", choices=["mock", "api"])
+    s.add_argument("--source", default="mock", choices=["mock", "api", "replay"])
     sh = sub.add_parser(
         "share", help="share the running screen through ngrok, public and read-only"
     )

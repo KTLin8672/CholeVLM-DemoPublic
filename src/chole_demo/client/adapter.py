@@ -771,4 +771,14 @@ def open_source(kind: str, runs_dir: Path) -> ScreenSource:
         return MockSource(runs_dir)
     if kind == "api":
         return ApiSource(endpoint())
-    raise ValueError(f"source {kind!r}: 'api' (chole-eval's server) or 'mock'")
+    if kind == "replay":
+        from chole_demo.feeds.replay import ReplaySource
+
+        source = ReplaySource(runs_dir)
+        for video_id in source.missing():
+            print(
+                f"no picture yet for {video_id}: "
+                f"python -m chole_demo.feeds.replay {video_id} PATH"
+            )
+        return source
+    raise ValueError(f"source {kind!r}: 'api' (chole-eval's server), 'mock' or 'replay'")

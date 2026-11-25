@@ -395,6 +395,8 @@ def create_app(
             return error("not_found", "no such run, video or frame", 404)
         except httpx.HTTPError:
             return error("upstream", "the model server did not answer", 502)
+        if getattr(source, "screen_ready", False):  # stored in the page's form (the replay)
+            return JSONResponse(lines)
         return JSONResponse(to_screen(lines, pinned, known.get("cvs_val", {}).get(run)))
 
     async def frame(request: Request):

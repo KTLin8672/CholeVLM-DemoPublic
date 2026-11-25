@@ -15,9 +15,11 @@ flowchart LR
   build["(cd web && npm run build)"] --> dist["web/dist/"]
   dist --> mock["python -m chole_demo serve<br/>(test feed)"]
   dist --> api["python -m chole_demo serve --source api"]
+  dist --> replay["python -m chole_demo serve --source replay<br/>(stored outputs)"]
   eval["CholeVLM-EvalTool API<br/>127.0.0.1:8710"] --> api
   mock --> page["the page<br/>127.0.0.1:8781"]
   api --> page
+  replay --> page
   page --> share["python -m chole_demo share<br/>(public, read-only)"]
   page --> record["python -m chole_demo record --seconds 120"] --> rec["recordings/"]
 ```
@@ -27,7 +29,7 @@ flowchart LR
 - **Tested on:** Ubuntu 24.04 on an aarch64 machine; no GPU is needed, since the 3D room is drawn by the viewer's browser
 - **Needs:** Python 3.12, Node.js 22 with npm, and `ffmpeg` (it makes the test feed's video)
 - **Optional:** a systemd user session (`systemd-run --user`) for the `tenant` command and the services; the ngrok agent with an authtoken (`ngrok config add-authtoken TOKEN`) for `share`
-- **Where the input comes from:** the model's outputs and the videos come from the API of the [evaluation and serving repository](https://github.com/KTLin8672/CholeVLM-EvalTool), started there with `python -m chole_eval.serve api --no-model` on `127.0.0.1:8710` (see [its README](https://github.com/KTLin8672/CholeVLM-EvalTool/blob/main/README.md)). The test feed needs nothing.
+- **Where the input comes from:** this copy carries the model's stored outputs for two validation videos, and you bring the videos from your own copy of the datasets (see Replay below). Run live, the model's outputs and the videos come from the API of the [evaluation and serving repository](https://github.com/KTLin8672/CholeVLM-EvalTool), started there with `python -m chole_eval.serve api --no-model` on `127.0.0.1:8710` (see [its README](https://github.com/KTLin8672/CholeVLM-EvalTool/blob/main/README.md)). The test feed needs nothing.
 
 ## Set up
 
@@ -61,6 +63,23 @@ python -m chole_demo serve     # success: "Uvicorn running on http://127.0.0.1:8
 curl -sf http://127.0.0.1:8781/api/videos >/dev/null && echo up
 ```
 
+## Replay
+
+- **Stored outputs, no model:** `replay/` holds what the model said, second by second, over two validation videos, CholecT50's VID103 and Cholec80's video 46, as the live demo shows them. The page replays them; nothing is computed.
+- **The videos are yours to bring:** the datasets' licence lets the demo show their frames but not hand them out, so this repository carries none. Get Cholec80 and CholecT50 from CAMMA (University of Strasbourg), then make each video's picture once from your copy, either the folder of its 1 fps frames or its video file:
+
+```bash
+python -m chole_demo.feeds.replay cholect50:VID103 /path/to/VID103-frames/   # numbered PNG or JPEG, one a second
+python -m chole_demo.feeds.replay cholec80:46 /path/to/video46.mp4           # or the video file, read once a second
+python -m chole_demo serve --source replay    # success: http://127.0.0.1:8781 plays VID103 with the model's outputs
+```
+
+- **The format**, for a picture or outputs made another way (VIDEO is the video id with `:` as `_`):
+  - `runs/replay/video/VIDEO.mp4`: H.264, one frame a second, frame t being second t of the operation, 644×392;
+  - `runs/replay/frames/current/VIDEO/TTTTT.jpg` at 644×392 and `runs/replay/frames/video/VIDEO/TTTTT.jpg` at 336×196: second T as a JPEG, numbered from 00000;
+  - `replay/VIDEO.json`: one video's outputs as the page reads them from `GET /api/rollout` (`meta`, `decisions` with each decision's second in `t_frame`, `dropped`, `end`); the two files there are the example, and another in the same form is listed beside them.
+- **Licence and differences:** the outputs describe the two videos and come under their licence, CC BY-NC-SA 4.0, for research and not for clinical use. The picture is the dataset's whole frame, scaled and letterboxed, where the model saw it cropped to the endoscope's view; asking the model answers that no model is connected.
+
 ## Run
 
 | Command | What it does | Output |
@@ -68,6 +87,8 @@ curl -sf http://127.0.0.1:8781/api/videos >/dev/null && echo up
 | `(cd web && npm run build)` | Builds the page, replacing `web/dist/`; a running server serves the new build at once. Needs `npm ci` first. | `web/dist/` |
 | `python -m chole_demo serve` | Serves the page on a test feed of made-up decisions, writing the feed to `runs/mock/` at its first request; needs no API. | `http://127.0.0.1:8781` |
 | `python -m chole_demo serve --source api` | Serves the page on the model's outputs over the demo videos; needs the API of the [evaluation and serving repository](https://github.com/KTLin8672/CholeVLM-EvalTool) running. | `http://127.0.0.1:8781` |
+| `python -m chole_demo serve --source replay` | Serves the page on the model's stored outputs in `replay/`, with no model; each video's picture made first (see Replay). | `http://127.0.0.1:8781` |
+| `python -m chole_demo.feeds.replay VIDEO_ID PATH` | Makes a video's picture under `runs/replay/` from your own copy of it: a folder of its 1 fps frames or its video file. | `runs/replay/` |
 | `python -m chole_demo share` | Runs ngrok in front of port 8781, so anyone with the address can watch; needs a server on 8781. | the public address, in its log |
 | `python -m chole_demo record --seconds 120` | Renders the page served on port 8781 frame by frame in headless Chromium into a video; refuses to record over one of the same name unless given `--replace`. | `recordings/*.mp4` and a JSON file beside each |
 | `(cd web && npm run dev)` | Serves `web/` with hot reload while you edit it, taking its data from the server on port 8781; stop it when you are done. | `http://127.0.0.1:5173` |
@@ -138,7 +159,8 @@ curl -sf http://127.0.0.1:8781/api/videos >/dev/null && echo up
 - `requirements.txt`, `requirements-dev.txt`: the pinned Python packages; `web/package-lock.json`: the JavaScript ones
 - `configs/`: `api.yaml` (the API version this repo speaks and the three videos the page shows); `*.local.yaml` (gitignored)
 - `deploy/`: the two user services
-- `runs/` (gitignored): `access.log` (one line a request), `sessions/` (each live run the page showed, saved as it arrived), `mock/` (the test feed)
+- `replay/`: the model's stored outputs for two validation videos, as the page reads them (see Replay)
+- `runs/` (gitignored): `access.log` (one line a request), `sessions/` (each live run the page showed, saved as it arrived), `mock/` (the test feed), `replay/` (the pictures you make)
 - `recordings/` (gitignored): the recordings and their JSON files
 - `tests/`: the tests that need no browser, and `test_screen.py`, which loads the page in headless Chromium
 
