@@ -1,0 +1,18 @@
+# The public share: the owner's ngrok agent in front of the screen's one port.
+[Unit]
+Description=CholeVLM demo, public through ngrok
+After=chole-demo-screen.service
+Requires=chole-demo-screen.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Repos/chole-demo
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.virtualenvs/CholeVLMDemo/bin/python -u -m chole_demo share --port 8781
+Restart=on-failure
+RestartSec=10
+MemoryMax=512M
+OOMScoreAdjust=1000
+
+[Install]
+WantedBy=default.target

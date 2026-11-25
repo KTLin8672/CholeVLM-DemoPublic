@@ -1,0 +1,486 @@
+/* The virtual OR (the owner's pick, 2026-11-05).
+   The room is three.js; this file styles what sits in it and around it: the monitors'
+   pages (authored in their own pixels, unit --u, laid on the screens with CSS3D), the
+   top bar and the HUD (standard controls), and the narrow-window layout.
+   Colour: drape green and near-black green screens; amber means a warning and red an
+   alert, nothing else. Square everywhere: no radius on screens, bars or controls. */
+:root {
+  --shade: #152523;
+  --hud: rgba(7, 19, 17, 0.94);
+  --line: #1f3d38;
+  --ink: #f2fbf8;
+  --quiet: #93b8b0;
+  --drape: #1f7a69;
+  --drape-deep: #135447;
+  --bright: #3fbfa3;
+  --scr: #071a17;
+  --scr-line: #1d3a35;
+  --warn: #ffc94d;
+  --on-warn: #2b2100;
+  --alert: #ff4b55;
+  --on-alert: #2a0004;
+  --sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--shade);
+  scrollbar-color: var(--line) transparent;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+::selection { background: rgba(63, 191, 163, 0.4); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+button, select, input { font: inherit; color: inherit; }
+input[type="checkbox"] { accent-color: var(--bright); }
+select { color-scheme: dark; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+body.view-presenter .engineer-only { display: none !important; }
+body.view-engineer .presenter-only { display: none !important; }
+
+/* the room fills the window; the top bar and the HUD sit over its ceiling and floor */
+#stage { position: fixed; inset: 0; cursor: grab; touch-action: pan-y; user-select: none; }
+#stage.turning { cursor: grabbing; }
+#room { display: block; width: 100%; height: 100%; }
+#css3d { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#pages { position: absolute; left: -10000px; top: 0; }
+#video { position: fixed; width: 2px; height: 2px; opacity: 0; pointer-events: none; left: 0; top: 0; }
+/* the overlay sits over the room and its pages, beneath the HUD, the top bar and the label */
+#fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 15; }
+
+/* controls: square, outlined, the same everywhere */
+#topbar button, #hud button, #hud select, #ask-panel button, #owner-panel button {
+  background: transparent; border: 1px solid #3d6a62; color: var(--ink);
+  padding: 4px 10px; border-radius: 0; cursor: pointer; font-size: 14px;
+}
+#hud select { background: var(--scr); }
+#topbar button:hover, #hud button:hover, #hud select:hover, #owner-panel button:hover { border-color: var(--quiet); }
+
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: 48px;
+  display: flex; align-items: center; gap: 18px; padding: 0 16px;
+  background: var(--hud); border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 800; font-size: 19px; letter-spacing: -0.2px; white-space: nowrap; }
+.brand span { font-weight: 400; color: var(--quiet); }
+#feed-info { color: var(--quiet); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* the connection (step 2): teal while following, amber when the server is not answering */
+#conn { flex: none; font-size: 13px; font-weight: 700; padding: 4px 9px; white-space: nowrap; border: 1px solid var(--bright); color: var(--bright); }
+#conn.warn { background: var(--warn); border-color: var(--warn); color: var(--on-warn); }
+#conn[hidden] { display: none; }
+#mock-banner { margin-left: auto; background: var(--warn); color: var(--on-warn); font-weight: 700; font-size: 13px; padding: 5px 10px; white-space: nowrap; }
+#ask-form { display: flex; margin-left: auto; flex: 1 1 auto; min-width: 160px; max-width: 340px; }
+#mock-banner[hidden] + #tabs { margin-left: auto; }
+#ask-form input { flex: 1; min-width: 0; background: var(--scr); border: 1px solid #3d6a62; border-right: 0; padding: 5px 10px; font-size: 14px; }
+#ask-form input::placeholder { color: var(--quiet); opacity: 1; }
+#hud #ask-form button { background: var(--ink); color: var(--shade); font-weight: 700; border-color: var(--ink); }
+#tabs, #view-switch { display: flex; }
+#view-switch button + button, #owner-tab { border-left: 0; }
+#topbar #view-switch button[aria-pressed="true"] { background: var(--ink); color: var(--shade); border-color: var(--ink); font-weight: 700; }
+/* the Owner tab: a lock while signed out; signed in, the lock open over a Chart White
+   rule (not the fill, which says which view is on) */
+#owner-tab { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+#owner-tab svg { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; }
+#owner-tab .i-unlock, #owner-tab.on .i-lock { display: none; }
+#owner-tab.on .i-unlock { display: block; }
+#topbar #owner-tab.on { box-shadow: inset 0 -3px 0 var(--ink); }
+#topbar #owner-tab[aria-expanded="true"] { border-color: var(--quiet); background: var(--shade); }
+/* the owner's panel, under the tab */
+#owner-panel {
+  position: fixed; top: 56px; right: 16px; z-index: 30; width: min(360px, calc(100vw - 32px));
+  background: var(--hud); border: 1px solid var(--line); padding: 14px 16px 16px; font-size: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+}
+#owner-panel[hidden], #owner-form[hidden], #ask-form[hidden] { display: none; }
+#owner-title { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+#owner-note { margin: 0 0 14px; color: var(--quiet); line-height: 1.4; }
+#owner-form .pw { display: flex; }
+#owner-form input { flex: 1; min-width: 0; background: var(--scr); color: var(--ink); border: 1px solid #3d6a62; border-right: 0; padding: 5px 10px; font: inherit; }
+#owner-form input::placeholder { color: var(--quiet); opacity: 1; }
+#owner-form input[aria-invalid="true"] { border-color: var(--ink); }
+#owner-panel #owner-submit { background: var(--ink); color: var(--shade); font-weight: 700; border-color: var(--ink); }
+#owner-panel #owner-submit:disabled { opacity: 0.45; cursor: progress; }
+#owner-msg { margin: 8px 0 0; min-height: 1.4em; color: var(--ink); }
+#owner-msg:empty { min-height: 0; margin: 0; }
+#owner-panel .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+#ask-panel {
+  position: fixed; bottom: 124px; right: 16px; z-index: 25; width: min(440px, 92vw); max-height: 40vh; overflow: auto;
+  background: var(--hud); border: 1px solid var(--line); padding: 12px 14px; font-size: 15px;
+}
+#ask-panel .q { font-weight: 700; }
+#ask-panel .muted { color: var(--quiet); }
+#ask-close { margin-top: 10px; }
+
+/* a fixed height, so the camera's frame never moves as events come and go */
+#hud {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; height: 116px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 34%); grid-template-rows: 32px 30px 18px;
+  column-gap: 18px; row-gap: 6px; padding: 10px 16px;
+  background: var(--hud); border-top: 1px solid var(--line); font-size: 14px;
+}
+#controls { display: flex; align-items: center; gap: 10px; color: var(--quiet); white-space: nowrap; }
+#controls label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+#hud #play { width: 40px; height: 30px; display: grid; place-items: center; padding: 0; border-color: var(--ink); }
+#play svg { width: 14px; height: 14px; fill: var(--ink); }
+#play .i-pause, #play.playing .i-play { display: none; }
+#play.playing .i-pause { display: block; }
+#clock { font-family: var(--mono); color: var(--ink); font-size: 15px; white-space: nowrap; }
+#timeline { position: relative; height: 30px; cursor: pointer; }
+#timeline .track { position: relative; height: 18px; background: #10302b; overflow: hidden; }
+#timeline .seg { position: absolute; top: 0; bottom: 0; border-right: 1px solid var(--shade); color: var(--ink); font-size: 11px; font-weight: 700; padding: 2px 4px; overflow: hidden; white-space: nowrap; }
+#timeline .marks { position: relative; height: 8px; margin-top: 3px; }
+#timeline .mark { position: absolute; top: 0; width: 6px; height: 6px; transform: translateX(-3px); }
+#timeline .head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); }
+#recent { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; color: var(--quiet); font-size: 13px; }
+#recent .strip { position: relative; height: 14px; border-bottom: 1px solid var(--line); }
+#recent .strip i { position: absolute; top: 2px; height: 10px; background: var(--quiet); }
+#recent .strip i.fb { background: transparent; outline: 1px dashed var(--warn); outline-offset: -1px; }
+#recent .strip i.drop { background: transparent; outline: 1px solid var(--warn); outline-offset: -1px; }
+#recent .strip .now { position: absolute; top: -2px; bottom: -2px; right: 0; width: 2px; background: var(--ink); }
+#recent .figs { white-space: nowrap; }
+#recent b { color: var(--ink); font-weight: 600; font-family: var(--mono); }
+#events { grid-column: 2; grid-row: 1 / span 3; overflow-y: auto; height: 96px; scroll-snap-type: y mandatory; }
+.event { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 8px; align-items: center; height: 32px; padding: 0 8px; font-size: 14px; border-bottom: 1px solid var(--line); white-space: nowrap; scroll-snap-align: start; }
+.event > span { overflow: hidden; text-overflow: ellipsis; }
+.event b { font-family: var(--mono); font-weight: 600; }
+.event.alert { background: var(--alert); color: var(--on-alert); font-weight: 800; border-bottom-color: var(--alert); }
+.event.warn { background: rgba(255, 201, 77, 0.12); }
+.event.unscored { box-shadow: inset 3px 0 0 var(--ink); }
+.event .unscored-tag { margin-left: 8px; font-size: 12px; }
+.event.cleared { color: var(--quiet); }
+.event .field { display: none; }
+/* the engineer view adds the kind and field inline, on the same single line */
+body.view-engineer .event .field { display: inline; font-size: 12px; opacity: 0.85; margin-left: 8px; }
+.calm { color: var(--quiet); padding: 4px 8px; }
+/* the dataset, its makers, the licence and the research line, on every frame of a real video */
+#attribution { position: fixed; left: 16px; bottom: 124px; z-index: 21; max-width: calc(100vw - 32px); background: var(--hud); color: var(--quiet); padding: 4px 10px; font-size: 12px; border: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* outside the training distribution: above the attribution, on every frame */
+#held-out { position: fixed; left: 16px; bottom: 156px; z-index: 21; max-width: calc(100vw - 32px); background: var(--hud); border: 1px solid var(--warn); color: var(--warn); padding: 6px 12px; font-size: 14px; }
+#synthetic-label { position: fixed; left: 50%; transform: translateX(-50%); bottom: 124px; z-index: 21; background: var(--hud); border: 1px solid var(--warn); color: var(--warn); padding: 6px 12px; font-size: 14px; }
+
+/* the monitors' pages: authored in their own pixels (--u), laid on the screens */
+.screen { --u: 1px; background: var(--scr); color: var(--ink); font-family: var(--sans); overflow: hidden; font-variant-numeric: tabular-nums; }
+/* the reading, on monitor C since the owner's arrangement of 2026-11-09 (a landscape
+   page): the rail and the stamp across the top, then now on the left (the phase and the
+   tools in view, safety, the model's words) and what is ahead on the right, as the
+   tools page on monitor B parts now from next (the owner, 2026-11-23) */
+#screen-b {
+  width: 880px; height: 550px; padding: calc(16 * var(--u)) calc(24 * var(--u));
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
+  gap: calc(8 * var(--u)) calc(28 * var(--u));
+}
+#screen-b .b-top { grid-column: 1 / -1; }
+/* each column flows on its own, so the engineer's extra lines in the phase lane never
+   push the next step off the bottom */
+#screen-b .b-col { display: flex; flex-direction: column; gap: calc(8 * var(--u)); min-height: 0; }
+#lane-why { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+/* a reply that failed: the lanes hold the previous state, dimmed, and the phase lane says so */
+#screen-b.fell-back #lane-ahead, #screen-b.fell-back #lane-tools, #screen-b.fell-back #lane-safety,
+#screen-b.fell-back #lane-why { opacity: 0.6; }
+/* Ahead: the next phase at display size with its countdown, then the
+   next instrument and the instruments likely within five minutes; each names its source */
+.a-name { font-size: calc(40 * var(--u)); font-weight: 800; letter-spacing: -0.02em; line-height: 1.04; text-wrap: balance; }
+.a-time { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); margin-top: calc(4 * var(--u)); }
+.eta { color: var(--quiet); font-family: var(--mono); font-size: calc(22 * var(--u)); white-space: nowrap; }
+.eta b { color: var(--ink); font-weight: 600; }
+.eta.a-eta { font-size: calc(36 * var(--u)); line-height: 1.1; }
+.a-eng { color: var(--quiet); font-size: calc(20 * var(--u)); line-height: 1.3; }
+.a-k { display: flex; align-items: baseline; justify-content: space-between; gap: calc(12 * var(--u)); margin-top: calc(12 * var(--u)); font-size: calc(22 * var(--u)); font-weight: 600; color: var(--quiet); }
+.a-tool { display: flex; align-items: baseline; flex-wrap: wrap; gap: calc(10 * var(--u)); font-size: calc(26 * var(--u)); margin-top: calc(2 * var(--u)); }
+.a-tool b { font-weight: 800; }
+#lane-ahead .tools5 { font-size: calc(22 * var(--u)); margin-top: calc(4 * var(--u)); gap: calc(3 * var(--u)) calc(12 * var(--u)); }
+#lane-ahead .tools5 b { font-family: var(--mono); font-weight: 600; text-align: right; }
+/* the source of a look-ahead item: the model's own estimate, outlined in the screen's
+   green, or the training videos' statistics, quieter; never dashed (dashed is unknown) */
+.src { flex: none; padding: 0 calc(7 * var(--u)); border: calc(2 * var(--u)) solid #3d6a62; color: var(--quiet); font-family: var(--sans); font-size: calc(22 * var(--u)); font-weight: 600; line-height: 1.3; white-space: nowrap; }
+.src.model { border-color: var(--bright); color: var(--ink); }
+/* Now: where the procedure is, smaller, as context */
+.now-where { font-family: var(--mono); font-weight: 400; white-space: nowrap; }
+.now-where b { color: var(--ink); font-weight: 600; }
+.now-name { font-size: calc(28 * var(--u)); font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; text-wrap: balance; margin-bottom: calc(2 * var(--u)); }
+.now-name .badge { font-size: calc(22 * var(--u)); letter-spacing: 0; vertical-align: calc(3 * var(--u)); }
+#lane-tools .row { margin-top: calc(4 * var(--u)); }
+/* the reading's words: two lines on the monitor, ended by an ellipsis */
+#screen-b .rationale { -webkit-line-clamp: 2; }
+/* the tools page's next tool: its countdown on one line under the name */
+.tools figcaption .eta b { display: inline; font-size: inherit; font-weight: 600; letter-spacing: 0; }
+.fell { color: var(--warn); font-size: calc(22 * var(--u)); font-weight: 600; margin-top: calc(4 * var(--u)); }
+#screen-b.alerting { box-shadow: inset 0 0 0 calc(7 * var(--u)) var(--alert); }
+.b-top { display: flex; align-items: center; justify-content: space-between; gap: calc(14 * var(--u)); }
+.rail { display: flex; gap: calc(3 * var(--u)); flex: none; }
+.rail i { width: calc(36 * var(--u)); height: calc(38 * var(--u)); display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: calc(22 * var(--u)); border: calc(2 * var(--u)) solid #3d6a62; color: var(--quiet); }
+.rail i.past { background: var(--drape); border-color: var(--drape); color: var(--ink); }
+.rail i.now { background: var(--ink); border-color: var(--ink); color: var(--scr); }
+.rail i.next { border-color: var(--bright); color: var(--ink); }
+.late { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+.late .v { font-family: var(--mono); font-weight: 600; font-size: calc(26 * var(--u)); line-height: 1.15; }
+.late .k { font-size: calc(22 * var(--u)); color: var(--quiet); }
+.late .k b { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+.late.warn .v { color: var(--warn); }
+.unknown { border: calc(2 * var(--u)) dashed var(--quiet); padding: 0 calc(8 * var(--u)); color: var(--ink); font-weight: 600; }
+.screen .lane { border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(8 * var(--u)); }
+.screen h3 { margin: 0 0 calc(6 * var(--u)); font-size: calc(22 * var(--u)); font-weight: 600; color: var(--quiet); display: flex; justify-content: space-between; align-items: baseline; gap: calc(12 * var(--u)); }
+.screen .muted { color: var(--quiet); font-size: calc(22 * var(--u)); }
+.screen .row { display: flex; align-items: center; gap: calc(10 * var(--u)); flex-wrap: wrap; font-size: calc(23 * var(--u)); }
+.bar { height: calc(12 * var(--u)); background: #12332d; flex: 1; min-width: calc(70 * var(--u)); }
+.bar > i { display: block; height: 100%; background: var(--bright); }
+.bar > i.low { background-color: var(--warn); background-image: repeating-linear-gradient(135deg, rgba(7, 26, 23, 0.55) 0 calc(4 * var(--u)), transparent calc(4 * var(--u)) calc(9 * var(--u))); }
+.badge { padding: 0 calc(8 * var(--u)); font-size: calc(24 * var(--u)); font-weight: 800; }
+.badge.warn { background: var(--warn); color: var(--on-warn); }
+.big-val { font-family: var(--mono); font-weight: 600; font-size: calc(26 * var(--u)); }
+.chip { border: calc(2 * var(--u)) solid var(--ink); padding: calc(1 * var(--u)) calc(10 * var(--u)); font-weight: 700; font-size: calc(23 * var(--u)); }
+.tools5 { display: grid; grid-template-columns: auto 1fr auto; gap: calc(5 * var(--u)) calc(12 * var(--u)); align-items: center; font-size: calc(21 * var(--u)); margin-top: calc(8 * var(--u)); }
+.tools5 .bar { height: calc(8 * var(--u)); }
+.tools5 .bar > i { background: var(--quiet); }
+.tools5 .model { font-weight: 800; }
+/* the critical view as a screening signal: each criterion's
+   name, its state in words ("not seen", "possibly seen", in the ink of every value: no
+   box, no tick, no colour of success) and its source tag; the note above it once */
+.cvs-note { color: var(--quiet); font-size: calc(18 * var(--u)); margin-bottom: calc(3 * var(--u)); }
+.cvs-none { color: var(--quiet); font-size: calc(22 * var(--u)); }
+.cvs { display: grid; gap: calc(3 * var(--u)); font-size: calc(22 * var(--u)); }
+.cvs .item { display: grid; grid-template-columns: 1fr auto auto; column-gap: calc(10 * var(--u)); align-items: center; }
+/* one line per criterion even at its widest ("triangle cleared", "possibly seen", "specialist"):
+   the state in Body, not Mono, and this lane's tags a size down */
+.cvs .st { font-weight: 600; font-size: calc(21 * var(--u)); }
+.cvs .src { font-size: calc(19 * var(--u)); padding: 0 calc(5 * var(--u)); }
+.cvs.probes .item { grid-template-columns: 1fr auto; }
+/* the vision hint's numbers, the probe's and never the model's: on the
+   engineer's view only, quiet, in their own column */
+body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-columns: 1fr auto auto auto; }
+.cvs .probe { color: var(--quiet); font-family: var(--mono); font-size: calc(20 * var(--u)); padding-left: calc(6 * var(--u)); }
+.hint-note { color: var(--quiet); font-size: calc(18 * var(--u)); margin-top: calc(2 * var(--u)); }
+#lane-flags { margin-top: calc(10 * var(--u)); }
+#lane-flags .row { gap: calc(8 * var(--u)); }
+.pill { padding: calc(3 * var(--u)) calc(12 * var(--u)); font-size: calc(22 * var(--u)); font-weight: 800; border: calc(2 * var(--u)) dashed var(--quiet); color: var(--quiet); }
+.pill.on { border: 0; }
+.pill.on.alert { background: var(--alert); color: var(--on-alert); font-size: calc(25 * var(--u)); }
+.pill.on.warn { background: var(--warn); color: var(--on-warn); }
+.pill.on.info { background: var(--ink); color: var(--scr); }
+/* a raised flag that was never scored (the bleeding flag, the owner 2026-11-22): an outline in
+   the ink of every value, no fill and no colour of severity, and the word "unscored" */
+.pill.on.unscored { border: calc(2 * var(--u)) solid var(--ink); color: var(--ink); }
+.unscored-tag { margin-left: calc(10 * var(--u)); font-size: calc(19 * var(--u)); font-weight: 600; color: var(--quiet); }
+.step { font-size: calc(30 * var(--u)); font-weight: 800; }
+.rationale { font-style: italic; font-size: calc(22 * var(--u)); line-height: 1.35; margin-top: calc(4 * var(--u)); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.waiting { color: var(--quiet); font-size: calc(22 * var(--u)); }
+
+/* the engineer's page, on monitor B in the engineer view since 2026-11-09 (portrait):
+   the replies above, then the delay figures, then the 30-second next step */
+#screen-c { width: 600px; height: 800px; padding: calc(18 * var(--u)) calc(22 * var(--u)); display: flex; flex-direction: column; gap: calc(10 * var(--u)); }
+.c-head { font-size: calc(20 * var(--u)); color: var(--quiet); font-weight: 600; }
+/* the model on the page and its gate: the gate's own line under it */
+.c-model { font-size: calc(20 * var(--u)); }
+.c-model:empty { display: none; }
+.c-model b { font-family: var(--mono); font-weight: 600; }
+.c-model .gate-line { display: block; color: var(--quiet); font-family: var(--mono); font-size: calc(16 * var(--u)); line-height: 1.3; margin-top: calc(2 * var(--u)); }
+.c-cols { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: calc(14 * var(--u)); min-height: 0; flex: 1; }
+#reply { overflow: hidden; }
+.reply-note { color: var(--quiet); font-size: calc(16 * var(--u)); margin-bottom: calc(4 * var(--u)); }
+.reply-note code { font-family: var(--mono); }
+.reply { border-top: calc(2 * var(--u)) solid var(--scr-line); padding: calc(6 * var(--u)) 0; font-size: calc(19 * var(--u)); }
+.reply pre { margin: calc(4 * var(--u)) 0 0; font-family: var(--mono); font-size: calc(17 * var(--u)); line-height: 1.3; white-space: pre; color: var(--quiet); overflow: hidden; }
+.c-right { display: flex; flex-direction: column; gap: calc(12 * var(--u)); border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(10 * var(--u)); }
+#delay b { white-space: nowrap; }
+#delay { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: calc(4 * var(--u)) calc(12 * var(--u)); align-content: start; font-size: calc(20 * var(--u)); }
+#delay span { color: var(--quiet); }
+#delay b { font-family: var(--mono); font-weight: 600; }
+/* the 30-second next step and the model's words, beside the raw replies */
+#c-step { border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(10 * var(--u)); }
+#c-step:empty { display: none; }
+/* the served CVS as it came, raw names and values; val's precision,
+   NPV and share met beside them under the word "val" once the API carries them */
+/* the counts behind monitor B's right half (the owner, 2026-11-23: on the engineer's page only) */
+#c-calls { border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(10 * var(--u)); }
+#c-calls:empty { display: none; }
+#c-calls h3 { font-size: calc(18 * var(--u)); }
+.c-calls-rows { display: grid; grid-template-columns: 1fr auto; gap: calc(2 * var(--u)) calc(14 * var(--u)); font-family: var(--mono); font-size: calc(18 * var(--u)); color: var(--quiet); }
+.c-calls-rows b { color: var(--ink); font-weight: 600; text-align: right; }
+#c-cvs { border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(10 * var(--u)); }
+#c-cvs:empty { display: none; }
+#c-cvs h3 { font-size: calc(18 * var(--u)); }
+.c-cvs-rows { display: grid; grid-template-columns: 1fr auto auto; gap: calc(2 * var(--u)) calc(14 * var(--u)); font-family: var(--mono); font-size: calc(18 * var(--u)); color: var(--quiet); }
+.c-cvs-rows b { color: var(--ink); font-weight: 600; }
+.c-cvs-rows.with-val { grid-template-columns: 1fr repeat(5, auto); column-gap: calc(12 * var(--u)); font-size: calc(16 * var(--u)); }
+.c-cvs-rows .h { font-family: var(--sans); font-size: calc(15 * var(--u)); align-self: end; }
+.c-cvs-rows .h:nth-child(n + 4), .c-cvs-rows .f { text-align: right; }
+.c-cvs-val { color: var(--quiet); font-size: calc(15 * var(--u)); margin-top: calc(4 * var(--u)); }
+#c-step h3 { font-size: calc(18 * var(--u)); }
+#c-step .step { font-size: calc(26 * var(--u)); }
+#c-step .rationale { font-size: calc(19 * var(--u)); }
+
+/* the tools page: monitor B in the presenter view (the owner, 2026-11-09), a portrait
+   page in two halves parted by a centre rule, the tools in view now on the left and the
+   two the model called most over the last three minutes on the right (2026-11-22), each a
+   picture of the instrument over its name */
+#screen-tools {
+  width: 600px; height: 800px; padding: calc(16 * var(--u)) calc(24 * var(--u)) calc(22 * var(--u));
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; column-gap: calc(20 * var(--u));
+}
+.tools .t-col { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+/* placed by hand: an item with a row of its own would be placed first, in column 1 */
+.tools .t-col:first-child { grid-column: 1; grid-row: 1; }
+.tools .t-col:last-of-type { grid-column: 3; grid-row: 1; }
+/* each half's heading over its source's tag on a line of its own, both halves the same
+   height, so the pictures start level */
+.tools .t-col h3 { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: calc(6 * var(--u)); min-height: calc(68 * var(--u)); }
+.tools .t-rule { grid-column: 2; grid-row: 1 / -1; width: calc(2 * var(--u)); background: var(--scr-line); }
+/* the pictures start level in both halves, a little above the middle */
+.tools .t-items { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: calc(64 * var(--u)); gap: calc(26 * var(--u)); }
+.tools .t-tool { margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 0; }
+.tools .t-tool img, .tools .t-nopic { display: block; width: 100%; max-width: calc(250 * var(--u)); aspect-ratio: 3 / 4; object-fit: contain; }
+/* two or three in view share the half's height */
+.tools .n2 .t-tool img, .tools .n2 .t-nopic { max-width: calc(170 * var(--u)); }
+.tools .n3 .t-tool img, .tools .n3 .t-nopic { max-width: calc(115 * var(--u)); }
+/* the two called tools each carry a count under the name, which may take two lines */
+.tools .t-col:last-of-type .n2 .t-tool img, .tools .t-col:last-of-type .n2 .t-nopic { max-width: calc(140 * var(--u)); }
+.tools figcaption { margin-top: calc(4 * var(--u)); text-align: center; line-height: 1.2; }
+.tools figcaption b { display: block; font-size: calc(30 * var(--u)); font-weight: 800; letter-spacing: -0.01em; text-wrap: balance; }
+.tools .t-sub { display: block; margin-top: calc(2 * var(--u)); color: var(--quiet); font-size: calc(22 * var(--u)); }
+.tools .t-when { display: block; margin-top: calc(4 * var(--u)); color: var(--quiet); font-family: var(--mono); font-size: calc(22 * var(--u)); }
+.tools .t-empty { flex: 1; display: grid; place-items: start center; padding-top: calc(150 * var(--u)); text-align: center; color: var(--quiet); font-size: calc(24 * var(--u)); text-wrap: balance; }
+.tools .t-fell { grid-column: 1 / -1; margin-top: calc(10 * var(--u)); color: var(--warn); font-size: calc(22 * var(--u)); font-weight: 600; }
+.tools.fell-back .t-col { opacity: 0.6; }
+
+#model-frame { margin: 0; width: 300px; background: var(--scr); border: 2px solid var(--ink); padding: 4px; transition: opacity 0.15s; }
+#model-frame img { display: block; width: 100%; aspect-ratio: 336 / 196; object-fit: cover; background: #000; }
+#model-frame figcaption { font-size: 24px; padding: 4px 4px 2px; }
+#model-frame b { font-family: var(--mono); }
+/* the frozen-frame indicator (step 2): the model's view is older than two decisions */
+#model-frame.frozen { border-color: var(--warn); }
+#model-frame.frozen figcaption { color: var(--warn); }
+
+/* Phones, and narrow or short windows (the owner, 2026-11-07: "change the dashboard on
+   the 3d scene to a generic one, and move the information to the bottom of the 3d
+   scene, outside of the 3d scene ... a pure dashboard not integrated in the scene").
+   One column that scrolls: the top bar; the room, framed on the endoscope monitor (on a
+   landscape phone the whole boom), where monitor B shows a generic page; the labels the
+   footage carries; the model's reading as a dashboard of its own; the events, alerts
+   first; then the rest of the HUD. Play, the clock and the timeline sit in a bar at the
+   screen's foot (main.js docks them there). The same query as main.js's. */
+#flat, #bar, #tool-card { display: none; }
+@media (max-width: 900px), (max-height: 500px) {
+  :root { --bar-h: 60px; --edge-l: max(12px, env(safe-area-inset-left)); --edge-r: max(12px, env(safe-area-inset-right)); }
+  html, body { overflow: auto; height: auto; }
+  body { display: flex; flex-direction: column; padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom)); }
+
+  #topbar { position: static; order: 1; height: auto; flex-wrap: wrap; gap: 6px 12px; padding: max(8px, env(safe-area-inset-top)) var(--edge-r) 8px var(--edge-l); }
+  .brand { order: 1; font-size: 17px; }
+  #tabs { order: 2; margin-left: auto; }
+  #feed-info { order: 3; flex: 1 0 100%; font-size: 13px; }
+  /* the owner's panel in the page, under the top bar */
+  #owner-panel { position: static; order: 1; width: auto; border-inline: 0; border-top: 0; box-shadow: none; padding-inline: var(--edge-l) var(--edge-r); }
+  #owner-panel > * { max-width: 520px; }
+  #owner-panel .acts { justify-content: flex-start; }
+  #conn, #mock-banner { order: 4; margin-left: 0; }
+
+  /* the room: tall enough for the endoscope monitor, its bezel and the blob */
+  #stage { position: relative; order: 3; height: 72vw; flex: none; }
+
+  /* what the footage carries on every frame, right under it */
+  #held-out, #synthetic-label, #attribution { position: static; order: 3; transform: none; max-width: none; margin: 8px var(--edge-r) 0 var(--edge-l); white-space: normal; }
+
+  /* the model's reading: its own dashboard, square tiles parted by hairlines */
+  #flat { display: flex; order: 4; flex-direction: column; gap: 1px; margin-top: 10px; background: var(--line); border-block: 1px solid var(--line); }
+  #flat .screen, body.view-engineer #flat #screen-b {
+    --u: clamp(0.66px, calc(100vw / 560), 0.78px);
+    position: static !important; width: auto; height: auto; overflow: visible; padding: 0;
+  }
+  #flat #screen-b { order: 1; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 1px; background: var(--line); }
+  #flat #screen-b .b-col { display: contents; }
+  /* under the rail the dashboard reads as monitor C, column by column: now, safety, the
+     model's words, then what is ahead (the owner, 2026-11-24) */
+  #flat #screen-b > .b-top { order: -2; }
+  #flat #screen-b > .b-top, #flat #screen-b .b-col > * { background: var(--scr); padding: 12px var(--edge-r) 14px var(--edge-l); margin: 0; border-top: 0; }
+  #flat .rationale { -webkit-line-clamp: 2; }
+  /* the tools as monitor B shows them, a card at the top above the room, so the tools
+     and the room share the first screen (the owner, 2026-11-09: "move the card of tool
+     above the room card to elimiated scrolling, so top to bottom tool, room, all other
+     status"); the presenter view only. Each half's tools sit side by side, so the card
+     keeps its height whatever is in view. */
+  #tool-card {
+    --u: clamp(0.66px, calc(100vw / 560), 0.78px);
+    order: 2; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: 12px;
+    padding: 8px var(--edge-r) 10px var(--edge-l); border-bottom: 1px solid var(--line);
+  }
+  #tool-card h3 { margin-bottom: 4px; }
+  #tool-card .t-items { flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px; padding-top: 0; }
+  #tool-card .t-tool { flex: 0 1 auto; min-width: 0; }
+  #tool-card .t-tool img, #tool-card .t-nopic { width: 84px; max-width: 100%; }
+  #tool-card .n2 .t-tool img, #tool-card .n2 .t-nopic { width: 64px; }
+  #tool-card .n3 .t-tool img, #tool-card .n3 .t-nopic { width: 44px; }
+  #tool-card figcaption b { font-size: calc(26 * var(--u)); }
+  #tool-card .t-empty { min-height: 0; padding-top: 0; place-items: center; }
+  body.view-engineer #tool-card { display: none; }
+  /* the rail and the late stamp; on a small phone the stamp takes its own line, whole */
+  #flat #screen-b .b-top { padding-block: 10px; flex-wrap: wrap; row-gap: 8px; }
+  #flat .late .v, #flat .late .k { white-space: nowrap; }
+  #flat #lane-why { overflow: visible; }
+  #flat #lane-flags { margin-top: 12px; }
+  /* an alert frames the whole dashboard, over its tiles */
+  #flat #screen-b.alerting { box-shadow: none; outline: 4px solid var(--alert); outline-offset: -4px; }
+  #flat #screen-c { order: 3; padding: 14px var(--edge-r) 16px var(--edge-l); }
+  #flat #screen-c .c-cols { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  #flat #screen-c .c-right { grid-template-columns: minmax(0, 1fr); }
+  #flat #screen-c .reply pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+  #flat #c-cvs { overflow-x: auto; }
+  #flat .c-cvs-rows.with-val { grid-template-columns: repeat(6, auto); justify-content: space-between; column-gap: calc(6 * var(--u)); }
+  body.view-presenter #flat #screen-c { display: none; }
+
+  /* the HUD's rest, under the dashboard: the events first */
+  #hud { position: static; order: 5; display: flex; flex-direction: column; gap: 12px; height: auto; padding: 14px var(--edge-r) 18px var(--edge-l); border-top: 0; }
+  #events { order: -1; grid-column: auto; grid-row: auto; height: auto; max-height: 50vh; border: 1px solid var(--line); }
+  .event { height: auto; min-height: 44px; white-space: normal; padding-block: 6px; }
+  #controls { flex-wrap: wrap; gap: 10px; white-space: normal; }
+  #ask-form { order: 9; flex: 1 0 100%; max-width: none; margin-left: 0; }
+  #recent { grid-template-columns: 1fr; gap: 4px; }
+  #recent .figs { white-space: normal; }
+
+  /* play, the clock and the timeline at the foot, in thumb reach */
+  #bar {
+    display: grid; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 12px;
+    min-height: var(--bar-h); padding: 8px var(--edge-r) calc(8px + env(safe-area-inset-bottom)) var(--edge-l);
+    background: var(--hud); border-top: 1px solid var(--line);
+  }
+  #bar #play { width: 48px; height: 44px; display: grid; place-items: center; padding: 0; background: transparent; border: 1px solid var(--ink); border-radius: 0; cursor: pointer; }
+  #bar #play svg { width: 16px; height: 16px; }
+  #bar #clock { font-size: 14px; }
+  /* the timeline's track, with room above and below for a finger */
+  #bar #timeline { height: auto; min-height: 44px; padding-block: 7px; }
+
+  #ask-panel { left: 0; right: 0; width: auto; top: auto; bottom: calc(var(--bar-h) + env(safe-area-inset-bottom)); max-height: 50vh; border-inline: 0; padding-inline: var(--edge-l) var(--edge-r); }
+
+  /* a finger, not a pointer: every control at least 44px */
+  #topbar button, #hud button, #hud select, #ask-form input, #owner-panel button, #owner-form input { min-height: 44px; }
+  #controls label#live-sim-label { min-height: 44px; }
+  /* 16px or more, so a phone does not zoom into the field it focuses */
+  #ask-form input, #owner-form input { font-size: 16px; }
+  #live-sim { width: 20px; height: 20px; }
+}
+/* an upright phone: the three tabs a row of their own, across, under the name */
+@media (max-width: 560px) and (min-height: 501px) {
+  #tabs { flex: 1 0 100%; margin-left: 0; display: grid; grid-template-columns: 2fr 1fr; }
+  #view-switch { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 360px) {
+  .brand { font-size: 15px; }
+  #topbar #tabs button { padding-inline: 8px; font-size: 13px; }
+}
+/* a landscape phone: the room fills the first screen, the dashboard below it */
+@media (max-height: 500px) and (orientation: landscape) {
+  #topbar { flex-wrap: nowrap; }
+  #feed-info { order: 2; flex: 1 1 auto; }
+  #tabs { order: 3; }
+  #stage { height: max(170px, calc(100vh - 60px - var(--bar-h) - 44px - 76px)); height: max(170px, calc(100svh - 60px - var(--bar-h) - 44px - 76px)); }
+  #tool-card { padding-block: 4px 6px; }
+  #tool-card h3 { margin-bottom: 2px; }
+  #tool-card .t-tool { flex-direction: row; gap: 8px; }
+  #tool-card .t-tool img, #tool-card .t-nopic, #tool-card .n2 .t-tool img, #tool-card .n3 .t-tool img { width: 36px; }
+  #tool-card figcaption { margin-top: 0; text-align: left; }
+}
+@media (min-width: 640px) and (max-width: 900px), (min-width: 640px) and (max-height: 500px) {
+  /* a wider one: now and safety side by side, the model's words across, what is ahead across */
+  #flat #screen-b { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #flat #screen-b .b-top, #flat #lane-ahead, #flat #lane-why { grid-column: 1 / -1; }
+}

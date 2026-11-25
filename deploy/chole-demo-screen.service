@@ -1,0 +1,20 @@
+# The demo screen on loopback, on chole-eval's server.
+# Install: cp deploy/*.service ~/.config/systemd/user/ && systemctl --user daemon-reload
+#          systemctl --user enable --now chole-demo-screen chole-demo-share
+[Unit]
+Description=CholeVLM demo screen (127.0.0.1:8781, on chole-eval's server)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Repos/chole-demo
+ExecStart=%h/.virtualenvs/CholeVLMDemo/bin/python -m chole_demo serve --source api --port 8781
+Restart=on-failure
+RestartSec=5
+# a demo process: small, and first to go if the box runs short
+MemoryMax=2G
+MemorySwapMax=0
+OOMScoreAdjust=1000
+
+[Install]
+WantedBy=default.target

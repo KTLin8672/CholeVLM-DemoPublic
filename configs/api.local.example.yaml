@@ -1,0 +1,3 @@
+# Copy to configs/api.local.yaml (gitignored) only if chole-eval's API is not at the default.
+# Loopback only: every server of this repo binds 127.0.0.1.
+endpoint: http://127.0.0.1:8710

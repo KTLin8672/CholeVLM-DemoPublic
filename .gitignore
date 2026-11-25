@@ -1,0 +1,20 @@
+# local machine config and secrets
+configs/external.yaml
+configs/machines/*.local.yaml
+configs/*.local.yaml
+*.credentials
+.env
+# runs, outputs, recordings
+runs/
+recordings/
+*.log
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+dist/
+# web
+web/node_modules/
+web/dist/

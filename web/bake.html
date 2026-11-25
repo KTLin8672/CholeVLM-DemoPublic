@@ -1,0 +1,12 @@
+<!doctype html>
+<!-- The instruments' pictures, drawn once from their 3D models (src/room/instruments.js)
+     by `python -m chole_demo bake-instruments` on Vite's dev server; not part of the build. -->
+<html lang="en">
+  <head><meta charset="utf-8" /><title>bake the instruments</title></head>
+  <body style="background:#071a17">
+    <script type="module">
+      import { instrumentPictures } from '/src/room/instruments.js';
+      instrumentPictures().then((p) => { window.__baked = p ?? {}; });
+    </script>
+  </body>
+</html>
