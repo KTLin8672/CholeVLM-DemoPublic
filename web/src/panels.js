@@ -1,12 +1,12 @@
-// The screen's pages, rendered from decision lines in api.md v0.1's shape. Since the
-// owner's arrangement of 2026-11-09, monitor C carries the model's reading; monitor B the
+// The screen's pages, rendered from decision lines in api.md v0.1's shape. Monitor
+// C carries the model's reading; monitor B the
 // tools in the presenter view (in view now and those the model called for the next three
 // minutes, pictured) and the raw
 // replies and every delay figure in the engineer view; the HUD carries the timeline, the
 // last minute of decisions and the events. Every value comes from the log; a field the
 // model left null is shown as unknown, never filled.
 //
-// The reading is a navigation aid (the owner's direction): what is
+// The reading is a navigation aid: what is
 // coming in the next minutes leads (the next phase and its time to go, the next
 // instrument, the instruments likely within five minutes), each counting down as the
 // video plays and naming its source, the model's estimate or the training videos'
@@ -14,7 +14,7 @@
 // The 30-second next step, which v1 does not claim, is the engineer's.
 //
 // Colour has two jobs: drape green is the room and the screens; amber means a
-// warning and red an alert, nothing else (the owner's picks, 2026-11-05).
+// warning and red an alert, nothing else.
 
 
 export const PHASES = [
@@ -52,8 +52,8 @@ const toolLabel = (t) => {
 };
 // A raised flag's look: 'alert' (red, the beacon) and 'warn' (butter) are severities;
 // 'unscored' is not one. The bleeding flag was trained on labels a model wrote and never
-// scored, and the paper says not to rely on it, so the owner
-// chose, 2026-11-22, that it is no longer drawn as an alert: an outline in the ink of every
+// scored, and the paper says not to rely on it, so it is
+// not drawn as an alert: an outline in the ink of every
 // value with the word "unscored", no red, no beacon, whatever severity its event carries.
 const FLAG_LABEL = {
   bleeding: ['active bleeding', 'unscored'],
@@ -207,7 +207,7 @@ function aheadLane(d) {
 }
 
 // Now: where the procedure is, as context; on monitor C the left column, what is ahead
-// on the right (the owner, 2026-11-23).
+// on the right.
 function phaseLane(d, meta) {
   const s = d.state;
   const cur = d.memory.current_phase;
@@ -318,16 +318,14 @@ export function renderCvsServed(d, meta) {
 }
 
 // The tools page (monitor B in the presenter view, and a card in a phone's dashboard;
-// the owner, 2026-11-09: "show visual of the next tool ... and the name underneath it,
-// if there is two tool estimate divide it by a center divider", then "Now | next"): on
+// each tool pictured with its name underneath, two tools parted by a centre rule): on
 // the left the tools the model sees in the frame now, on the right the tools it has called
 // for the next minutes, parted by a centre rule. Each is a picture of the instrument, drawn
 // ahead of time from its 3D model (room/instruments.js, web/public/instruments/), with
 // its name under it, in the reading's words. Every value is the model's: a null is
 // unknown (dashed), never filled.
-// The right half (the owner, 2026-11-22: "aggregate the model result and see what is the
-// next most possible (top 2) tool for next 3 minute", in place of the next tool within
-// 30 s) counts the model's own next-tool calls, each for 30 s, over the last
+// The right half (the two tools likeliest over the next three minutes, in place of the
+// next tool within 30 s) counts the model's own next-tool calls, each for 30 s, over the last
 // three minutes, a call left out once the model has seen its tool since, and shows the two
 // most called that are not in view, each with its count: a count of the model's calls, not
 // a trained three-minute forecast, and tagged so. The 30-s call stays on the reading.
@@ -394,8 +392,8 @@ export function renderTools(d, upto = [d]) {
   putTools(toolCols(now, next, Math.max(1, s.tools_now?.length ?? 1), Math.max(1, called.length)) + fell, !!d.fallback);
 }
 
-// The counts behind monitor B's right half, on the engineer's page alone (the owner,
-// 2026-11-23: "remove the count of calls, that should be in engineering view only").
+// The counts behind monitor B's right half, on the engineer's page alone: the tools
+// page shows the tools without them.
 export function renderCalls(d, upto = [d]) {
   const el = $('c-calls');
   if (!d) { el.innerHTML = ''; return; }
@@ -598,7 +596,7 @@ export function renderEvents(d) {
     : '<div class="calm">No events raised</div>';
 }
 
-// Plan §9 item 7, as the server computes it (the Delay object), on the engineer's laptop.
+// The live-delay estimate, as the server computes it (the Delay object), on the engineer's laptop.
 export function renderDelay(d, upto, meta) {
   if (!d) { $('delay').innerHTML = `<span>a decision every</span><b>${meta.D} s</b>`; return; }
   const dl = d.delay;

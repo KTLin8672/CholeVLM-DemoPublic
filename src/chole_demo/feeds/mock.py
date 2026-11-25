@@ -1,6 +1,6 @@
-"""The mock feed: made-up decision logs in chole-eval's API v0.1 shapes.
+"""The mock feed: made-up decision logs in the model server's API v0.1 shapes.
 
-The screen is built against this until chole-eval serves its
+The screen is built against this until the model server serves its
 API. The lines follow `chole-eval/docs/api.md` v0.1 (the header, decision,
 dropped and end lines; the State, Delay, Outlook, Event and Memory objects).
 Every value is invented: no label table, prior file, frame shard or video of
@@ -854,7 +854,7 @@ def _test_pattern(frame_dir: Path, size: str) -> None:
 
 class MockSource:
     """The mock behind the adapter's interface (client.adapter.ScreenSource): it
-    answers with api.md v0.1 lines, as chole-eval's server will."""
+    answers with api.md v0.1 lines, as the model server will."""
 
     def __init__(self, runs_dir: Path, pace: float = 1.0) -> None:
         self.dir = runs_dir / "mock"

@@ -1,5 +1,5 @@
-// The virtual operating room (the owner's pick, 2026-11-05). The video plays on the
-// endoscope monitor (A) as a texture. Since the owner's arrangement of 2026-11-09, the
+// The virtual operating room. The video plays on the
+// endoscope monitor (A) as a texture. The
 // boom monitor beside it (B) shows the tools (in view now, and the model's next one)
 // in the presenter view and the engineer's figures in the engineer view, and the
 // monitor on its stand (C) the model's reading in both, with the alarm beacon on it:
@@ -22,15 +22,15 @@ import { standInScreen } from './displays.js';
 const VIEW_DIR = {
   presenter: new THREE.Vector3(0.02, -0.16, -1).normalize(),
   engineer: new THREE.Vector3(0.03, -0.05, -1).normalize(),
-  // phones (the owner, 2026-11-07: the camera may change, the room may not): square-on
+  // phones (the camera may change, the room may not): square-on
   // to the endoscope monitor, which faces 0.1 rad to the right, so the footage is not
   // foreshortened; a landscape phone's wide band faces the boom to take in both
   // monitors and the beacon
   compact: new THREE.Vector3(-Math.sin(0.1), -0.05, -Math.cos(0.1)).normalize(),
   compactWide: new THREE.Vector3(0, -0.07, -1).normalize(),
 };
-// the owner, 2026-11-09: "presenter: monitor left to right, A: video B: tool C: board and
-// siren. Engineer zoom in so A and B and C are in view only as big as possible"
+// the presenter view frames the monitors left to right, A the video, B the tools, C the
+// reading and the beacon; the engineer view frames the same three as close as they fit
 const VIEW_SCREENS = { presenter: ['A', 'B', 'C'], engineer: ['A', 'B', 'C'], compact: ['A'], compactWide: ['A', 'B', 'C'] };
 // a stage at least this much wider than tall frames the boom whole (a landscape phone)
 const WIDE = 1.9;
@@ -276,7 +276,7 @@ export function createRoom({ stage, canvas, cssRoot, pages, flat, insets, reduce
     return { pos: cam.position.clone().add(shift), target: center.clone().add(shift) };
   };
 
-  // Turning the room (the owner, 2026-11-06): a drag across the stage swings the camera
+  // Turning the room: a drag across the stage swings the camera
   // round the vertical axis through the point the view is framed on, and nothing else
   // (no tilt, no zoom, no pan). It is held within YAW_MAX either way, so the camera
   // stays inside the room and the screens stay readable; past the limit the drag gives
@@ -480,7 +480,7 @@ export function createRoom({ stage, canvas, cssRoot, pages, flat, insets, reduce
     // the reading and the engineer's page leave the room for flat panels under it
     // (removing a CSS3D object takes its element out of the 3D layer; adding it back
     // returns it); the tools stay on monitor B, and the dashboard has its own card of
-    // them (main.js). On a phone (the owner, 2026-11-07) the reading's monitor shows a
+    // them (main.js). On a phone the reading's monitor shows a
     // generic page instead (its stand-in, displays.js).
     setCompact(c) {
       if (c === compact) return;

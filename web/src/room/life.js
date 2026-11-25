@@ -1,5 +1,4 @@
-// The room's own life, apart from the owner's animations (the owner, 2026-11-06:
-// "make the OR look more live"). Two things, both decoration, neither a value:
+// The room's own life, apart from the animations of anim/, so the OR looks live. Two things, both decoration, neither a value:
 //
 // - Monitor A lights the room with the video's own colour. The video (or the 1 fps
 //   frame) is sampled a few times a second into a tiny canvas; its average colour,

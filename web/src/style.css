@@ -1,4 +1,4 @@
-/* The virtual OR (the owner's pick, 2026-11-05).
+/* The virtual OR.
    The room is three.js; this file styles what sits in it and around it: the monitors'
    pages (authored in their own pixels, unit --u, laid on the screens with CSS3D), the
    top bar and the HUD (standard controls), and the narrow-window layout.
@@ -160,10 +160,10 @@ body.view-engineer .event .field { display: inline; font-size: 12px; opacity: 0.
 
 /* the monitors' pages: authored in their own pixels (--u), laid on the screens */
 .screen { --u: 1px; background: var(--scr); color: var(--ink); font-family: var(--sans); overflow: hidden; font-variant-numeric: tabular-nums; }
-/* the reading, on monitor C since the owner's arrangement of 2026-11-09 (a landscape
+/* the reading, on monitor C (a landscape
    page): the rail and the stamp across the top, then now on the left (the phase and the
    tools in view, safety, the model's words) and what is ahead on the right, as the
-   tools page on monitor B parts now from next (the owner, 2026-11-23) */
+   tools page on monitor B parts now from next */
 #screen-b {
   width: 880px; height: 550px; padding: calc(16 * var(--u)) calc(24 * var(--u));
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
@@ -257,7 +257,7 @@ body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-co
 .pill.on.alert { background: var(--alert); color: var(--on-alert); font-size: calc(25 * var(--u)); }
 .pill.on.warn { background: var(--warn); color: var(--on-warn); }
 .pill.on.info { background: var(--ink); color: var(--scr); }
-/* a raised flag that was never scored (the bleeding flag, the owner 2026-11-22): an outline in
+/* a raised flag that was never scored (the bleeding flag): an outline in
    the ink of every value, no fill and no colour of severity, and the word "unscored" */
 .pill.on.unscored { border: calc(2 * var(--u)) solid var(--ink); color: var(--ink); }
 .unscored-tag { margin-left: calc(10 * var(--u)); font-size: calc(19 * var(--u)); font-weight: 600; color: var(--quiet); }
@@ -290,7 +290,7 @@ body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-co
 #c-step:empty { display: none; }
 /* the served CVS as it came, raw names and values; val's precision,
    NPV and share met beside them under the word "val" once the API carries them */
-/* the counts behind monitor B's right half (the owner, 2026-11-23: on the engineer's page only) */
+/* the counts behind monitor B's right half (on the engineer's page only) */
 #c-calls { border-top: calc(2 * var(--u)) solid var(--scr-line); padding-top: calc(10 * var(--u)); }
 #c-calls:empty { display: none; }
 #c-calls h3 { font-size: calc(18 * var(--u)); }
@@ -309,7 +309,7 @@ body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-co
 #c-step .step { font-size: calc(26 * var(--u)); }
 #c-step .rationale { font-size: calc(19 * var(--u)); }
 
-/* the tools page: monitor B in the presenter view (the owner, 2026-11-09), a portrait
+/* the tools page: monitor B in the presenter view, a portrait
    page in two halves parted by a centre rule, the tools in view now on the left and the
    two the model called most over the last three minutes on the right (2026-11-22), each a
    picture of the instrument over its name */
@@ -350,9 +350,7 @@ body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-co
 #model-frame.frozen { border-color: var(--warn); }
 #model-frame.frozen figcaption { color: var(--warn); }
 
-/* Phones, and narrow or short windows (the owner, 2026-11-07: "change the dashboard on
-   the 3d scene to a generic one, and move the information to the bottom of the 3d
-   scene, outside of the 3d scene ... a pure dashboard not integrated in the scene").
+/* Phones, and narrow or short windows: the model's reading leaves the scene.
    One column that scrolls: the top bar; the room, framed on the endoscope monitor (on a
    landscape phone the whole boom), where monitor B shows a generic page; the labels the
    footage carries; the model's reading as a dashboard of its own; the events, alerts
@@ -389,14 +387,13 @@ body:not(.view-presenter) .cvs:not(.probes) .item:has(.probe) { grid-template-co
   #flat #screen-b { order: 1; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 1px; background: var(--line); }
   #flat #screen-b .b-col { display: contents; }
   /* under the rail the dashboard reads as monitor C, column by column: now, safety, the
-     model's words, then what is ahead (the owner, 2026-11-24) */
+     model's words, then what is ahead */
   #flat #screen-b > .b-top { order: -2; }
   #flat #screen-b > .b-top, #flat #screen-b .b-col > * { background: var(--scr); padding: 12px var(--edge-r) 14px var(--edge-l); margin: 0; border-top: 0; }
   #flat .rationale { -webkit-line-clamp: 2; }
   /* the tools as monitor B shows them, a card at the top above the room, so the tools
-     and the room share the first screen (the owner, 2026-11-09: "move the card of tool
-     above the room card to elimiated scrolling, so top to bottom tool, room, all other
-     status"); the presenter view only. Each half's tools sit side by side, so the card
+     and the room share the first screen with no scrolling (the tools, the room, then
+     the rest); the presenter view only. Each half's tools sit side by side, so the card
      keeps its height whatever is in view. */
   #tool-card {
     --u: clamp(0.66px, calc(100vw / 560), 0.78px);

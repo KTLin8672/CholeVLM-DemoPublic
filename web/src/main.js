@@ -1,8 +1,8 @@
-// The screen: a virtual operating room (the owner's pick, 2026-11-05). The video plays
+// The screen: a virtual operating room. The video plays
 // on the endoscope monitor and the decision log follows it by video time (the video
 // by byte ranges). Monitor B shows the
 // reading, the HUD the run, monitor C the engineer's figures. Data comes only from
-// the demo server's /api: today the mock, later chole-eval.
+// the demo server's /api: today the mock, later the model server.
 
 import '@fontsource/atkinson-hyperlegible-next/400.css';
 import '@fontsource/atkinson-hyperlegible-next/600.css';
@@ -153,7 +153,7 @@ async function boot() {
   clock.changed = room.invalidate;
   for (const ev of ['playing', 'pause', 'seeked', 'ended', 'loadeddata', 'ratechange']) video.addEventListener(ev, room.invalidate);
   // On a phone, play, the clock and the timeline sit in a bar at the screen's foot, in
-  // thumb reach (the owner, 2026-11-07); on a wider window they go back to the HUD.
+  // thumb reach; on a wider window they go back to the HUD.
   const transport = ['play', 'clock', 'timeline'].map((id) => {
     const el = $(id);
     const mark = document.createComment(id);
@@ -181,7 +181,7 @@ async function boot() {
   for (const b of document.querySelectorAll('#view-switch button')) b.addEventListener('click', () => setView(b.dataset.view));
   setView(new URLSearchParams(location.search).get('view') === 'engineer' ? 'engineer' : 'presenter');
 
-  // The owner's sign-in (the owner, 2026-11-07): an Owner tab beside the views asks for
+  // The owner's sign-in: an Owner tab beside the views asks for
   // his password (no user name, no other address); signed in, Ask and the videos not
   // shown publicly are on, and the tab signs him out again. Asking the model is his
   // alone, so a visitor sees no Ask box.

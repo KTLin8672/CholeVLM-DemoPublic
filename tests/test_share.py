@@ -1,4 +1,4 @@
-"""The public ngrok share (the owner: "Public, as ruled"): the edge adds
+"""The public ngrok share: the edge adds
 noindex and no referrer; no credential sits in the policy or in the repo."""
 
 from chole_demo import share

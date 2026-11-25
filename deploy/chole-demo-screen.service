@@ -1,8 +1,8 @@
-# The demo screen on loopback, on chole-eval's server.
+# The demo screen on loopback, on the model server.
 # Install: cp deploy/*.service ~/.config/systemd/user/ && systemctl --user daemon-reload
 #          systemctl --user enable --now chole-demo-screen chole-demo-share
 [Unit]
-Description=CholeVLM demo screen (127.0.0.1:8781, on chole-eval's server)
+Description=CholeVLM demo screen (127.0.0.1:8781, on the model server)
 After=network-online.target
 
 [Service]

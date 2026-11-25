@@ -1,7 +1,6 @@
 // The instruments the model names, built in 3D and drawn once into pictures for the
-// tools page (monitor B in the presenter view; the owner, 2026-11-09: "show visual of
-// the next tool ... 3d model (but present 2d on the monitor) and the name underneath
-// it"). Each is the working end of a laparoscopic instrument as used in a
+// tools page (monitor B in the presenter view), each shown in 2D with its name
+// underneath. Each is the working end of a laparoscopic instrument as used in a
 // cholecystectomy, its shaft running out of the picture at the lower left, in the
 // room's own finishes: an insulated black shaft, steel jaws as a true conductor, a
 // titanium clip, a white ceramic insulator on the bipolar forceps.

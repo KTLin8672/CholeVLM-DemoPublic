@@ -1,35 +1,35 @@
-# The chole-eval API version this client speaks.
+# The model server's API version this client speaks.
 api_doc: chole-eval/docs/api.md
-# Pinned 2026-11-18: v1.13 (chole-eval 31c9b5b), additive over
+# Pinned 2026-11-18: v1.13 (the model server at 31c9b5b), additive over
 # 1.12: the header's `cvs_served.val_reading`, and `GET /api/runs/{run}`'s `cvs_served_val`
 # for a log written before it: per criterion val's precision, NPV and share met with the
 # points and videos they are read on, and a p1 criterion's out-of-fold figures. The
 # adapter cuts it to those figures (`val_reading`; out of fold in place of in-sample for
 # a p1 criterion) and the engineer's page shows them beside the served CVS, marked val.
-# Before: v1.12 (chole-eval 281108d), additive
+# Before: v1.12 (the model server at 281108d), additive
 # over 1.10: v1.11 each val decision's `cvs_served` (per CVS criterion the value the screen
 # shows and its source: `reply`, `p1`, `specialist`), drawn as the screen's CVS with its
 # source; v1.12 the header's `decision_form` (`trained` or `stateless`, with `served`):
 # of a checkpoint's runs a demo video is shown from one in its served form (`stage3-final`
 # stateless), and the engineer view names the form. A stateless run has no hint line, so
 # neither the probe's numbers nor the "unfamiliar scene" event.
-# Before: v1.10 (chole-eval ceb6a69), additive over 1.9
+# Before: v1.10 (the model server at ceb6a69), additive over 1.9
 # and nothing new drawn: the header's `prompt` names `prev_next_step` beside `prev_cvs`
 # (`stage3b`'s both `zeroed`), and with it zeroed the decision's `previous_state` has no
 # `next_step` and its `prior_block` takes the phase's own next-step clause; the adapter
 # cuts the header to its meta and the decision to the screen's keys (since this pin
 # without `prior_block`, which the page never drew), so none of it leaves the server.
-# Before: v1.9 (chole-eval 5b3e84a), additive over 1.7
+# Before: v1.9 (the model server at 5b3e84a), additive over 1.7
 # and nothing new drawn: v1.8 the header's `prompt` (the prompt form a checkpoint pins,
 # `{"prev_cvs": "zeroed"}` from Stage 3 on), v1.9 each decision's `cvs_probs` (the reply's own
 # probability of each CVS value); the adapter cuts both away, so neither leaves the server.
-# Before: v1.7 (chole-eval e9197e4), additive
+# Before: v1.7 (the model server at e9197e4), additive
 # over 1.4: v1.5 the self-probe hint (the header's `hint.threshold`, each decision's `hint`:
 # the probe's three numbers on the engineer view, the "unfamiliar scene" event worked out
 # by the adapter), v1.6 the checkpoint's gate in the header (`checkpoint.gate`, the engineer
 # view's model line), v1.7 an ablation row's run named in its header (`ablation`: never
 # listed on the demo). A run without `hint` shows neither the numbers nor the event.
-# Before: v1.4 (chole-eval e74005d), additive: the
+# Before: v1.4 (the model server at e74005d), additive: the
 # header's `split`, the early held-out video's run (`source: test_root`, its frames encoded
 # live), `attribution.public` (false: shown behind the owner's sign-in only) and
 # `attribution.ood` (the line on its every frame). Before: v1.3 (7610dcb): `dropped_rate_est`
@@ -55,7 +55,7 @@ interim: {run: "stage1-best-merged-cholec80_12-t493-613-D4", video: "cholec80:12
 # sampled points keep it out anyway).
 exclude_runs: ["stage1-best-offline-D4-20261106T002825"]
 # The endpoint is machine-local and gitignored: configs/api.local.yaml, key `endpoint`
-# (default http://127.0.0.1:8710, chole-eval's server).
+# (default http://127.0.0.1:8710, the model server).
 # Videos from outside the training distribution (HeiChole) are
 # shown with their label on every frame, and publicly only once their licence is known
 # to allow it (the evaluation's check); until a video id is listed here, and while the API's

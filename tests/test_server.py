@@ -232,7 +232,7 @@ def test_ask_is_the_owners(client):
 
 
 def test_signing_out_drops_this_browsers_cookie(client):
-    """The Owner tab's Sign out (the owner, 2026-11-07)."""
+    """The Owner tab's Sign out."""
     _sign_in(client)
     assert client.get("/api/me").json() == {"owner": True}
     out = client.delete("/api/owner")

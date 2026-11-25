@@ -1,6 +1,5 @@
-// The virtual operating room's pieces (the owner's picks, 2026-11-05: "a 3D virtual
-// OR, our video is the endo view screen", then "more realistic with shading … see the
-// bed and other equipment … better light shading"). Physically based materials
+// The virtual operating room's pieces: the video on the endoscope's screen, the bed and
+// the other equipment shaded as real. Physically based materials
 // (matte drapes, brushed steel, painted equipment, a vinyl floor) lit by the room's
 // lights and soft shadows. World units are metres, y up; the back wall is at
 // z = -3.2, the boom monitors near z = -1.2, the OR table across the frame at z = 0.35
@@ -158,7 +157,7 @@ export function buildRoom(scene) {
   }
 
   // monitor C on a rolling stand, right of monitor B: the model's reading in both views
-  // since the owner's arrangement of 2026-11-09 (A the video, B the tools, C the reading
+  // (A the video, B the tools, C the reading
   // and the siren); its page covers the screen, dark green under it like B's
   const c = monitor(0.88, 0.55, unlit('#071a17'), M);
   c.group.position.set(1.33, 1.76, -1.08);
@@ -206,7 +205,7 @@ export function buildRoom(scene) {
   // the legs on their boards, the head and its airway (patient.js)
   const patient = addPatient(add, M, S, { T, mattress });
   // the anaesthesia screen: a bar arched over the patient's upper chest, a linen curtain
-  // hung from it (the owner, 2026-11-22), resting on the patient and falling past the
+  // hung from it, resting on the patient and falling past the
   // table's sides
   const AR = 0.33, AY = T.top + 0.05;
   const arch = solid(new THREE.Mesh(new THREE.TorusGeometry(AR, 0.012, 8, 28, Math.PI), M.steel));

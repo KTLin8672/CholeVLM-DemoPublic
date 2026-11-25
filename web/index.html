@@ -22,7 +22,7 @@
           <button type="button" data-view="presenter" aria-pressed="true">Presenter</button>
           <button type="button" data-view="engineer" aria-pressed="false" title="the engineer's monitor: raw replies, every delay figure and the prior (key E)">Engineer</button>
         </div>
-        <!-- the owner's sign-in (the owner, 2026-11-07): his password, no user name -->
+        <!-- the owner's sign-in: a password, no user name -->
         <button type="button" id="owner-tab" aria-expanded="false" aria-controls="owner-panel" title="the owner's sign-in">
           <svg class="i-lock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7.25" width="10" height="7" /><path d="M5.25 7.25V5.5a2.75 2.75 0 0 1 5.5 0v1.75" /></svg>
           <svg class="i-unlock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7.25" width="10" height="7" /><path d="M5.25 7.25V5.5a2.75 2.75 0 0 1 5.4-.7" /></svg>
@@ -89,8 +89,8 @@
     </footer>
     <!-- phones and narrow or short windows: the model's reading as a dashboard under the
          room, and play, the clock and the timeline in a bar at the foot (main.js) -->
-    <!-- phones: the tools as monitor B shows them, a card above the room (the owner,
-         2026-11-09: "top to bottom tool, room, all other status") -->
+    <!-- phones: the tools as monitor B shows them, a card above the room, so the
+         tools, the room and the rest follow top to bottom with no scrolling -->
     <div id="tool-card" class="screen tools" aria-label="Tools in view and the next tool"></div>
     <section id="flat" aria-label="The model's reading"></section>
     <div id="bar" role="group" aria-label="Playback"></div>
@@ -101,8 +101,8 @@
         <div class="b-top"><div id="b-rail" class="rail"></div><div id="b-stamp" class="late"></div></div>
         <!-- two columns on monitor C, each in its own flow (on a phone, tiles: display
              contents): what holds now on the left (where it is, safety, the model's words),
-             what is ahead on the right, as the tools page parts now from next (the owner,
-             2026-11-23; the reading a navigation aid); the 30-second next
+             what is ahead on the right, as the tools page parts now from next (the
+             reading a navigation aid); the 30-second next
              step is on the engineer's page -->
         <div class="b-col">
           <div class="lane" id="lane-now">

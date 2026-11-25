@@ -1,4 +1,4 @@
-"""The owner's sign-in to ask the model (the owner, 2026-11-05: a
+"""The owner's sign-in to ask the model (a
 password typed on the page itself, no user name, no other address).
 
 Everything lives in the gitignored `configs/owner.local.yaml`, mode 600:
@@ -26,7 +26,7 @@ from pathlib import Path
 import yaml
 
 N, R, P = 2**14, 8, 1  # scrypt: about 16 MB and some tens of ms a try
-MIN_LENGTH = 8  # the owner, 2026-11-05: "i want to use a 8 charter password"
+MIN_LENGTH = 8  # eight characters at least
 
 
 def hash_password(password: str, salt: bytes | None = None) -> str:

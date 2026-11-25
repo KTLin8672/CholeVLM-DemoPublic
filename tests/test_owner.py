@@ -1,4 +1,4 @@
-"""The owner's password (the owner, 2026-11-05: typed on the page, no user name, no
+"""The owner's password (typed on the page, no user name, no
 other address): only its hash is kept, in a file only he can read; a new password
 signs every browser out."""
 

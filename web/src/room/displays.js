@@ -1,5 +1,5 @@
-// The background equipment's own screens (the owner, 2026-11-06: "all the machine ...
-// have generic black display, can you make them more realistic"), drawn into canvases
+// The background equipment's own screens, each realistic, not a generic black display,
+// drawn into canvases
 // as each device shows itself in a laparoscopic cholecystectomy: the camera control
 // unit, the light source, the insufflator, the electrosurgical generator, the two
 // infusion pumps and the anaesthesia machine's ventilator page.
@@ -131,14 +131,12 @@ export function screenMesh(w, h, screen, brightness = 0.85) {
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
 }
 
-// The reading's stand-in on phones (the owner, 2026-11-07: "change the dashboard on the
-// 3d scene to a generic one, and move the information to the bottom of the 3d scene,
-// outside of the 3d scene"). There the model's reading is a dashboard of its own under
+// The reading's stand-in on phones. There the model's reading is a dashboard of its own under
 // the room (style.css), and the reading's monitor shows a generic page in its place:
 // the reading's layout as empty placeholders, with no phase, tool, criterion or figure
 // on it, since the screen invents nothing. An alert the model raises is real, so the
-// page takes the alert's red frame as the reading does. Since the owner's arrangement
-// of 2026-11-09 the reading is on monitor C, landscape, so this page is too: the rail
+// page takes the alert's red frame as the reading does. The reading
+// is on monitor C, landscape, so this page is too: the rail
 // and the stamp across the top, the phase and the tools on the left, safety and the
 // next step on the right.
 export function standInScreen() {

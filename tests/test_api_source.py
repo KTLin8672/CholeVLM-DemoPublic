@@ -1,4 +1,4 @@
-"""The screen on chole-eval's server (api.md v1.0): the runs and
+"""The screen on the model server (api.md v1.0): the runs and
 the logs read through the adapter, the frames and the video proxied by byte ranges,
 the configured video first, and nothing about the upstream reaching the browser."""
 
@@ -96,7 +96,7 @@ DEMO_VID, DEMO_RUN = "cholect50:VID103", "stage1-best-merged-cholect50_VID103-D4
 # runs that hold a demo video and are not its run: a parity or
 # reconciliation run's sampled points, a latency test's live replay, the first ticks only,
 # evaluation's whole offline run over its own five videos; and a live replay stopped before
-# its manifest was written, its fields in the info alone (chole-eval, 2026-11-07)
+# its manifest was written, its fields in the info alone (the model server, 2026-11-07)
 NOT_DEMO = {
     "stage1-best-offline-D4-parity": {"manifest": {"from_rows": {"path": SECRET}}},
     "stage1-best-live-D4-latency": {"manifest": {"mode": "live"}},
@@ -290,7 +290,7 @@ def test_the_configured_video_comes_first_on_its_fullest_run(client):
     assert vids[0]["video_id"] == VID  # the fixture's demo list opens on it
     pairs = [(v["run"], v["video_id"], v["writing"]) for v in vids]
     assert pairs[:2] == [(FULLER, VID, False), (WRITING, VID, True)]
-    # one finished run a video (the owner, 2026-11-07): RUN's whole run of it is smaller
+    # one finished run a video: RUN's whole run of it is smaller
     assert (RUN, VID, False) not in pairs and (RUN, "endoscapes:124", False) in pairs
     # a stretch of a demo video is not its run, nor are the runs of NOT_DEMO
     assert {v["run"] for v in vids} == {FULLER, RUN, WRITING} and SECRET not in json.dumps(vids)
@@ -365,9 +365,9 @@ def test_ask_passes_the_no_model_answer_on(client):
     assert res.status_code == 503 and res.json()["error"] == "no_model"
 
 
-# step 2: following a run still being written through chole-eval's stream (api.md v1.1)
+# step 2: following a run still being written through the model server's stream (api.md v1.1)
 def _stream_upstream(store: list, written: list):
-    """A stand-in for chole-eval's server: `/api/load` gives the lines stored so far;
+    """A stand-in for the model server: `/api/load` gives the lines stored so far;
     `WS /api/stream` sends hello, then (after a seek past the end) each line written
     after it opened. One line is written just after the socket opens, before the
     client reads the store: it reaches the client twice and must be shown once."""
@@ -534,7 +534,7 @@ def test_a_demo_video_is_shown_from_its_whole_offline_runs_only(tmp_path):
 
 
 def test_a_demo_video_is_listed_from_one_finished_run(tmp_path):
-    """The owner, 2026-11-07 (HeiChole's two runs, "only the 4 s run"): of a video's
+    """Of a video's
     finished whole runs, the one that covers most of it is listed and served; the other
     is neither, to anyone."""
     demo = {"videos": [DEMO_VID, OOD_VID], "interim": {"run": STRETCH, "video": VID}}
@@ -664,7 +664,7 @@ def test_a_demo_video_is_shown_from_its_checkpoints_served_form(tmp_path):
 
 
 def test_the_decision_log_is_compressed_and_the_video_never(tmp_path):
-    """The share's transfer is the owner's ngrok allowance (it ran out on 2026-11-09):
+    """The share's transfer is the ngrok account's allowance (it ran out once):
     the JSON goes gzip-compressed to a browser that accepts it; the video's byte ranges,
     the whole video and the frames go as they are."""
     client = _app(tmp_path, {"videos": [VID, "endoscapes:124"], "interim": None}, without_fuller)

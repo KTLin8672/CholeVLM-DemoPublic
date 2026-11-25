@@ -1,5 +1,4 @@
-// Realistic surfaces for the virtual OR (the owner, 2026-11-06: "turn it from
-// cartoonish to realistic").
+// Realistic surfaces for the virtual OR, so the room reads as real, not as a cartoon.
 // What made the room read as a toy was one flat colour and one roughness per surface,
 // and nothing bright to reflect. Here every surface gets a finish that varies across it,
 // drawn once into canvases (no image files, nothing fetched, a seeded generator so every

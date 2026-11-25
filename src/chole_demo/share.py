@@ -1,6 +1,4 @@
-"""Share the screen through ngrok, in public (the owner's choices, 2026-11-05: ngrok in
-place of `tailscale serve`; then public and read-only, as ruled, and he
-confirmed: "Public, as ruled").
+"""Share the screen through ngrok, in public and read-only.
 
 The demo server stays on loopback; the owner's ngrok agent, already
 installed and logged in by him, carries that one port to his account's public HTTPS

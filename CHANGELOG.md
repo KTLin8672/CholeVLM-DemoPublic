@@ -86,3 +86,4 @@ What changed in the demo, by date, oldest first.
 - A security audit: a visitor's address is the one ngrok saw, so a made-up `X-Forwarded-For` no longer slips the per-visitor limits; no other site may show the page in a frame; the built page carries no HTML comment; the access log is readable by its own account alone.
 - The README says that the API the page reads, from the evaluation and serving repository, does not start again after a reboot, and how to start it.
 - A replay: the model's stored outputs for two validation videos (CholecT50's VID103, Cholec80's video 46) in `replay/`, played with no model by `python -m chole_demo serve --source replay`; each video's picture is made once from your own copy of the dataset (`python -m chole_demo.feeds.replay`), and the README gives the format.
+- The code's comments give each reason in plain words, without dates, quoted requests or our working names for the other repositories.

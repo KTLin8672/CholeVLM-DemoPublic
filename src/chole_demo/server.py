@@ -1,7 +1,7 @@
 """The demo's web server: the built page, the decision logs, the video, the frames, the ask box.
 
-It binds to loopback only (never 0.0.0.0). Since the owner's
-choice of 2026-11-05 it is public through ngrok (`python -m chole_demo share`),
+It binds to loopback only (never 0.0.0.0). It is
+public through ngrok (`python -m chole_demo share`),
 read-only; asking the model is the owner's, after his password (`owner.py`). It says
 nothing about its host: the API carries only what the screen draws (no raw
 header, no paths), errors are generic, and no server banner is sent. Every
@@ -161,7 +161,7 @@ class AccessLog(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = "frame-ancestors 'none'"
         # the page itself is checked again on every load (its ETag answers 304 while it is
         # unchanged), so a deploy shows at the next load, not after the browser's own guess
-        # at freshness (the owner saw the old columns after 2026-11-23's); its scripts and
+        # at freshness (an old build's page was once seen after a new one); its scripts and
         # styles carry their hash in their names and keep their caching
         ctype = response.headers.get("content-type", "")
         if ctype.startswith("text/html") and "cache-control" not in response.headers:
@@ -223,7 +223,7 @@ def create_app(
     # (`pairs` finished, `writing` still being written: followed, never served as a replay)
     listing: dict = {"at": 0.0, "pairs": set(), "writing": set(), "videos": set(), "private": set()}
 
-    upstream = getattr(source, "upstream", None)  # chole-eval's server: frames and video proxied
+    upstream = getattr(source, "upstream", None)  # the model server: frames and video proxied
     # the demo shows its videos and nothing else, in their order; its
     # interim run stays until each of them that is not held out has a finished run
     demo = demo if demo is not None else demo_config()
@@ -257,8 +257,7 @@ def create_app(
             if demo_run(r, v)
         }  # fmt: skip
         keep = interim and not all(v in done for v in order if held_out(v) is None)
-        # one finished run a video (the owner, 2026-11-07: HeiChole's D = 8 run beside its
-        # D = 4 run, "only the 4 s run"): the newest checkpoint's (the
+        # one finished run a video: the newest checkpoint's (the
         # final model's runs replace the earlier checkpoints', which stay stored and
         # unlisted), and of its runs, in its served form, the one that covers most of the
         # video, where the screen opened it already; a run still being written is
@@ -470,7 +469,7 @@ def create_app(
         )
         return res
 
-    # the Owner tab's "Sign out" (the owner, 2026-11-07): this browser's cookie dropped;
+    # the Owner tab's "Sign out": this browser's cookie dropped;
     # the password and every other browser stay as they are
     async def sign_out(request: Request):
         res = JSONResponse({"owner": False})
@@ -575,8 +574,8 @@ def create_app(
     middleware = [
         Middleware(AccessLog, path=access_log),
         # the decision log is JSON, about 30 times smaller compressed (VID103's 7.1 MB is
-        # 0.23 MB): the share's monthly transfer is the owner's ngrok allowance, which
-        # ran out on 2026-11-09. Never the video (its byte ranges are left as they are,
+        # 0.23 MB): the share's monthly transfer is the ngrok account's allowance, which
+        # ran out once. Never the video (its byte ranges are left as they are,
         # and a 1 fps H.264 does not shrink) nor the frames and pictures.
         Middleware(
             GZipMiddleware,

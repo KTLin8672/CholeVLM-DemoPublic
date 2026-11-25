@@ -2,7 +2,7 @@
 
 The screen consumes a rollout in api.md v1.0's decision-line shape, cut to the
 fields it draws, plus a small `meta` the adapter derives from the header. A source
-answers with API lines: chole-eval's server (`ApiSource`, the real logs) or the
+answers with API lines: the model server (`ApiSource`, the real logs) or the
 mock (`feeds/mock.py`, for tests). When the API moves past the pinned version
 (`configs/api.yaml`), this file maps the new lines onto the screen's shape; nothing
 else in the repo changes.
@@ -410,7 +410,7 @@ class Unfamiliar:
     """The "unfamiliar scene" event, worked out here from the decision
     lines, since the API's event box has no such kind: a scene is unfamiliar while its
     frame's `hint.familiarity` is over the header's `hint.threshold`; the event is
-    raised once it has been so for `RAISE_S` of video time, and held as chole-eval holds
+    raised once it has been so for `RAISE_S` of video time, and held as the model server holds
     its own (api.md "Event"): visible at least `event_hold_s` from
     `t_raised` and longer while it holds, reopened if it returns while still visible,
     and shown once more, invisible, when it leaves the box. Fed every decision of one
@@ -625,7 +625,7 @@ def _served_form(f) -> bool | None:
 
 
 class ApiSource:
-    """chole-eval's server (api.md v1.0) as the screen's source. Runs and logs are
+    """The model server (api.md v1.0) as the screen's source. Runs and logs are
     read here; frames and the video are proxied by the demo server from `upstream`,
     so the browser talks to the demo server alone. Nothing about the upstream's
     header (paths, hosts, manifests) reaches the screen: `to_screen` keeps `meta`."""
@@ -781,4 +781,4 @@ def open_source(kind: str, runs_dir: Path) -> ScreenSource:
                 f"python -m chole_demo.feeds.replay {video_id} PATH"
             )
         return source
-    raise ValueError(f"source {kind!r}: 'api' (chole-eval's server), 'mock' or 'replay'")
+    raise ValueError(f"source {kind!r}: 'api' (the model server), 'mock' or 'replay'")

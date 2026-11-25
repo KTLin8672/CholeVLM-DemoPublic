@@ -1,7 +1,7 @@
 """`python -m chole_demo bake-instruments`: the instruments' pictures for the tools page,
 drawn once from their 3D models (web/src/room/instruments.js) and written to
-web/public/instruments/<name>.webp, which the build ships with the page (the owner,
-2026-11-09: "show visual of the next tool ... 3d model (but present 2d on the monitor)").
+web/public/instruments/<name>.webp, which the build ships with the page: each
+tool shown in 2D, drawn from its 3D model.
 
 It starts Vite's dev server on its own loopback port (5173), opens `bake.html`
 in headless Chromium (Playwright's, in the venv), takes the pictures the page draws and

@@ -1,6 +1,5 @@
-// The patient's legs and head (the owner, 2026-11-22: "your patient bed should have 2
-// leg stick out ... you cover the patient face like a dead person, you should add a
-// breather to the patient mouth"). The table is a split-leg table, as in the French
+// The patient's legs and head: two legs out on their own boards, the face left
+// uncovered, and an airway in the mouth. The table is a split-leg table, as in the French
 // position the Strasbourg videos were filmed in (the surgeon between the legs): each leg
 // in its legging on its own leg board, apart from the hips. The head is uncovered on a gel
 // head ring, in a surgical cap, the eyes taped shut, and intubated: the tracheal tube

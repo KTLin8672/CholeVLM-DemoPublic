@@ -1,8 +1,7 @@
 """The built screen in headless Chromium (Playwright, the venv's browsers): the
-virtual OR (the owner's pick, 2026-11-05). At recording sizes the monitors' pages
+virtual OR. At recording sizes the monitors' pages
 fit their screens and stay in view, an alert is on monitor C, in the event box and
-on the beacon, the bleeding flag is raised as unscored and never as an alert (the owner,
-2026-11-22), off flags are not shown, low confidence is a word, the
+on the beacon, the bleeding flag is raised as unscored and never as an alert, off flags are not shown, low confidence is a word, the
 video plays, and on a phone the reading is a dashboard under the room, without
 sideways scroll.
 
@@ -157,7 +156,7 @@ def _open(browser, url, w, h, view):
 
 def test_the_built_page_carries_no_html_comment():
     """index.html's comments are notes for whoever edits it; a visitor's view-source shows
-    none of them (2026-11-24: they named a decision and the owner's sign-in)."""
+    none of them."""
     assert "<!--" not in (DIST / "index.html").read_text()
 
 
@@ -174,7 +173,7 @@ def test_the_alert_is_on_screen_and_the_pages_fit(browser, url, w, h, view):
         assert seen["readingsFit"] and seen["engineerFits"] and seen["toolsFit"], (
             f"a monitor's page overflows at {w}x{h} ({view})"
         )
-    # the owner, 2026-11-09: A the video, B the tools (the engineer's page in the engineer
+    # A the video, B the tools (the engineer's page in the engineer
     # view), C the reading with the beacon; both views frame all three
     assert s["monitors"] == [True, True, True], f"a monitor is cut at {w}x{h} ({view})"
     assert s["readingsInView"], f"the reading (monitor C) is cut at {w}x{h} ({view})"
@@ -183,8 +182,7 @@ def test_the_alert_is_on_screen_and_the_pages_fit(browser, url, w, h, view):
     else:
         assert s["toolsInView"] and not s["engineerShown"], f"monitor B at {w}x{h}"
     assert alert["pillInView"] and alert["alertCardInView"] and alert["beacon"]
-    # the bleeding flag, trained on labels a model wrote and never scored: raised in the ink of every value with "unscored", no red, no beacon (the owner,
-    # 2026-11-22)
+    # the bleeding flag, trained on labels a model wrote and never scored: raised in the ink of every value with "unscored", no red, no beacon
     assert s["unscoredInView"] and "unscored" in s["flags"] and s["unscoredCard"]
     assert not s["pillAlert"] and not s["alertCard"] and not s["beacon"]
     assert "poor visibility" not in s["flags"]  # an off flag is not shown
@@ -226,17 +224,17 @@ AHEAD = """() => {
 
 @pytest.mark.parametrize("view", ["presenter", "engineer"])
 def test_the_reading_leads_with_what_is_ahead(browser, url, view):
-    """The owner's direction: the screen is a navigation aid. The
+    """The screen is a navigation aid. The
     reading carries what is coming (the next phase with its time to go, the next
     instrument, the instruments' chance within five minutes), in the right column beside
-    where it is now since the owner's choice of 2026-11-23, each time counting down
+    where it is now, each time counting down
     with the video and each item naming its source; the 30-second next step, which v1
     does not claim, is on the engineer's page alone."""
     page, errors = _open(browser, url, 1600, 900, view)
     page.evaluate(SEEK, 200)
     s = page.evaluate(AHEAD)
     page.close()
-    # now on the left, what is ahead on the right, as the tools page (the owner, 2026-11-23)
+    # now on the left, what is ahead on the right, as the tools page
     assert s["nowLeft"], "where it is now sits left of what is ahead"
     assert "next phase" in s["aheadText"] and "Next instrument" in s["aheadText"]
     assert "Chance within 5 min" in s["aheadText"]
@@ -265,7 +263,7 @@ SETTLE = """() => new Promise(done => { const room = window.__demo.room; let n =
 
 
 def test_a_drag_turns_the_room_round_its_vertical_axis(browser, url):
-    """The owner, 2026-11-06: a drag turns the room round the vertical axis through the
+    """A drag turns the room round the vertical axis through the
     view's centre, and nothing else; it holds within its limit, a double click faces the
     room again; turned, what stands in front of a screen hides it."""
     page, errors = _open(browser, url, 1280, 720, "presenter")
@@ -346,7 +344,7 @@ def test_the_room_is_drawn_only_as_often_as_it_changes(browser, url):
 
 
 def test_the_owner_tab_signs_in_and_turns_ask_on(browser, url):
-    """The owner, 2026-11-07: an Owner tab beside Presenter and Engineer asks for his
+    """An Owner tab beside Presenter and Engineer asks for his
     password (no user name, no other address); signed in, Ask is on, and the tab signs
     him out again. A visitor sees no Ask box."""
     page, errors = _open(browser, url, 1600, 900, "presenter")
@@ -425,7 +423,7 @@ CALLS = """() => {
 
 
 def _called(upto, window=180):
-    """The owner, 2026-11-22: the model's own next-tool calls over the last three minutes,
+    """The model's own next-tool calls over the last three minutes,
     counted by type, a call left out once a later decision saw its tool; the two most
     called not in view, newest first on a tie; a reply that fell back not counted."""
     d = upto[-1]
@@ -443,7 +441,7 @@ def _called(upto, window=180):
 
 
 def test_monitor_b_shows_the_tools_in_view_and_the_next_one(browser, url):
-    """The owner, 2026-11-09: in the presenter view monitor B shows, left of a centre
+    """In the presenter view monitor B shows, left of a centre
     rule, the tools the model sees now and, right of it, the tools to come, each a
     picture of the instrument (drawn ahead of time from its 3D model) with its name under
     it; since 2026-11-22 the tools to come are the two the model called most over the last
@@ -478,8 +476,7 @@ def test_monitor_b_shows_the_tools_in_view_and_the_next_one(browser, url):
 
 
 def test_the_calls_are_counted_on_the_engineer_page(browser, url):
-    """The owner, 2026-11-23: "remove the count of calls, that should be in engineering
-    view only". The engineer's page gives monitor B's two called tools with their counts,
+    """The call counts are on the engineer's view alone. The engineer's page gives monitor B's two called tools with their counts,
     by the same rule."""
     page, errors = _open(browser, url, 1600, 900, "engineer")
     seen = []
@@ -813,7 +810,7 @@ PHONE = """() => {
 
 @pytest.mark.parametrize(("w", "h"), [(390, 844), (844, 390), (932, 430)])
 def test_on_a_phone_the_reading_is_a_dashboard_under_the_room(browser, url, w, h):
-    """The owner, 2026-11-07: on a phone the room's monitor B shows a generic page and
+    """On a phone the room's monitor B shows a generic page and
     the model's reading is a dashboard of its own under the room; play, the clock and
     the timeline sit at the screen's foot; every control takes a finger. Upright, the
     camera is on the endoscope monitor; a landscape phone (a large one included, past
@@ -837,7 +834,7 @@ def test_on_a_phone_the_reading_is_a_dashboard_under_the_room(browser, url, w, h
     bleed = page.evaluate(PHONE)
     ctx.close()
     assert s["compact"] and s["reading"] == "flat" and s["order"] == [True, True]
-    assert s["nowFirst"]  # now, then what is ahead (the owner, 2026-11-24)
+    assert s["nowFirst"]  # now, then what is ahead
     assert not s["sideways"] and s["bar"] == ["play", "clock", "timeline"] and s["barInView"]
     assert s["small"] == []
     assert s["pill"] and s["alertFrame"] and s["beacon"]
@@ -848,7 +845,6 @@ def test_on_a_phone_the_reading_is_a_dashboard_under_the_room(browser, url, w, h
         assert s["aIn"] and s["aShare"] > 0.8  # the footage across the phone
     else:
         assert s["aIn"] and s["bIn"] and s["cIn"]  # the three monitors, the beacon on C
-    # the tools above the room (the owner, 2026-11-09: "top to bottom tool, room, all
-    # other status")
+    # the tools above the room, then the rest
     assert s["card"] == ["Tools in view", "Next 3 min"] and s["cardAboveRoom"] and s["cardPics"]
     assert errors == []

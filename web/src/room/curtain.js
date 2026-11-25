@@ -1,5 +1,4 @@
-// The anaesthesia screen's curtain (the owner, 2026-11-22: "the divider should be a
-// linen-like curtain"): a linen cloth hung from the arched bar over the patient's upper
+// The anaesthesia screen's curtain: a linen cloth hung from the arched bar over the patient's upper
 // chest, falling onto the patient and past the table's sides, in soft gathered folds.
 // The folds come from a tangent angle integrated across
 // the cloth's width, so arc length equals the rest coordinate and the weave never

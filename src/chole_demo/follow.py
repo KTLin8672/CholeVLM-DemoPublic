@@ -1,14 +1,14 @@
 """Following a run as it is written.
 
 One `Follow` per run and video, shared by every viewer: it opens the source's stream
-(chole-eval's `WS /api/stream`, api.md v1.1, joined with the lines already stored),
+(the model server's `WS /api/stream`, api.md v1.1, joined with the lines already stored),
 keeps the lines cut to the screen's fields, and hands them to each viewer from where
 that viewer left off. When the upstream goes away (a restart, a dropped socket) it
 reconnects with a growing pause and takes up where it was: lines are kept once by
 their kind and tick, so nothing is shown twice and nothing is skipped.
 
 It also writes the session log (`session_log.py`): every line as it arrived, with
-the wall time it arrived, for the §8 synthetic row in step 3.
+the wall time it arrived, for scoring a generated feed later.
 
 The browser's side is `/api/follow/{run}/{video}` in `server.py`, a WebSocket that
 sends `meta`, then each `line` in order, `status` when the upstream's state changes,

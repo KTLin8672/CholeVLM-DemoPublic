@@ -1,4 +1,4 @@
-"""The tools page's pictures (the owner, 2026-11-09): every instrument the page can name
+"""The tools page's pictures: every instrument the page can name
 has its picture, drawn from its 3D model by `python -m chole_demo bake-instruments` and
 shipped with the page; no browser here."""
 

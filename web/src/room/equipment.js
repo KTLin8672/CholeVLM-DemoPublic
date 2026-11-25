@@ -1,4 +1,4 @@
-// The theatre's fuller kit (the owner's pick, 2026-11-06: "more equipment & detail"):
+// The theatre's fuller kit, so the room reads as a real one:
 // the things a laparoscopic cholecystectomy room holds besides the tower, placed where
 // the presenter camera sees them, all behind monitor B or below it, none in front of it:
 // - the electrosurgical generator on its cart, behind the anaesthesia screen, the hook's

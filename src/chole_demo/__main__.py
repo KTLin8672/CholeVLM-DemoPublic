@@ -1,7 +1,7 @@
 """chole-demo's commands.
 
 python -m chole_demo mock                  # build the mock rollout and video, print hashes
-python -m chole_demo serve [--port 8781]   # the screen on 127.0.0.1 (--source api: chole-eval's server)
+python -m chole_demo serve [--port 8781]   # the screen on 127.0.0.1 (--source api: the model server)
 python -m chole_demo share [--port 8781]   # share it through ngrok, public and read-only
 python -m chole_demo owner-password        # set the owner's password for asking the model
 python -m chole_demo record [--run R --video V] [--from T] [--seconds 120] [--replace]   # recordings/

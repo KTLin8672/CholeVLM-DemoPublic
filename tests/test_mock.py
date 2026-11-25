@@ -1,4 +1,4 @@
-"""The mock feed speaks chole-eval's API v1.0 and is deterministic."""
+"""The mock feed speaks the model server's API v1.0 and is deterministic."""
 
 import itertools
 import json
