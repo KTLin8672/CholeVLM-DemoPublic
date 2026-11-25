@@ -167,5 +167,6 @@ curl -sf http://127.0.0.1:8781/api/videos >/dev/null && echo up
 ## More
 
 - [web/src/anim/README.md](web/src/anim/README.md): how to write an animation
+- [LICENSE](LICENSE): the code and the stored outputs in `replay/` under CC BY-NC-SA 4.0, the datasets' own terms: credit, non-commercial use only, changes shared alike
 - [CHANGELOG.md](CHANGELOG.md): what changed, each deploy, and every change of dependency versions
 - [`docs/api.md`](https://github.com/KTLin8672/CholeVLM-EvalTool/blob/main/docs/api.md) in the evaluation and serving repository: the API this repository reads
