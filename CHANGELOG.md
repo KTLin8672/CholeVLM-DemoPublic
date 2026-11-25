@@ -87,4 +87,4 @@ What changed in the demo, by date, oldest first.
 - The README says that the API the page reads, from the evaluation and serving repository, does not start again after a reboot, and how to start it.
 - A replay: the model's stored outputs for two validation videos (CholecT50's VID103, Cholec80's video 46) in `replay/`, played with no model by `python -m chole_demo serve --source replay`; each video's picture is made once from your own copy of the dataset (`python -m chole_demo.feeds.replay`), and the README gives the format.
 - The code's comments give each reason in plain words, without dates, quoted requests or our working names for the other repositories.
-- A licence: the code and the stored outputs under CC BY-NC-SA 4.0, the datasets' own terms (`LICENSE`).
+- A licence: the code and the stored outputs under CC BY-NC-SA 4.0, the datasets' own terms; `LICENSE` is its legal code as Creative Commons publishes it.
