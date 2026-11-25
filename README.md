@@ -83,6 +83,12 @@ systemctl --user enable --now chole-demo-screen chole-demo-share   # chole-demo-
 systemctl --user restart chole-demo-screen     # after a change under src/; a change under web/ needs none
 ```
 
+- **The API the page reads is not one of them** and does not start again after a reboot: until it runs, the page loads with no video and the check under Check prints nothing. Start it from the evaluation and serving repository's folder, with its environment active; if systemd says the unit already exists, run `systemctl --user reset-failed chole-eval-api-nomodel` first.
+
+```bash
+systemd-run --user --unit chole-eval-api-nomodel --same-dir -E ARTIFACT_ROOT -E DATA_ROOT "$(command -v python)" -m chole_eval.serve api --no-model
+```
+
 - **Ship a change to the page:** build into a trial folder, test it, and swap it in only if the tests pass; the last line says which happened
 
 ```bash
